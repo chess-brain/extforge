@@ -174,14 +174,26 @@
         height: 100%;
     }
 
+    :global(.blocklyToolboxDiv) {
+        background: linear-gradient(180deg, #f7f9fc 0%, #eef3f9 100%);
+        border-right: 1px solid #d7dfec;
+        box-shadow: inset -1px 0 0 #ffffffa0, 2px 0 8px #0000000c;
+        width: 170px !important;
+    }
     :global(.dark .blocklyToolboxDiv) {
-        background: #333;
+        background: linear-gradient(180deg, #1c2230 0%, #171c28 100%);
+        border-right-color: #30394c;
+        box-shadow: inset -1px 0 0 #ffffff1a, 2px 0 8px #0008;
     }
 
     :global(.blocklyToolboxCategory) {
-        width: 128px;
+        width: calc(100% - 8px);
         position: relative;
-        padding: 0;
+        padding: 0 8px;
+        margin: 2px 4px;
+        border-radius: 10px;
+        box-sizing: border-box;
+        transition: transform 120ms ease, filter 120ms ease;
     }
     :global(.blocklyTreeSelected) {
         background-color: initial !important;
@@ -189,31 +201,31 @@
 
     :global(.blocklyTreeLabel) {
         font-family: "Noto Sans";
-        font-weight: 500;
-        font-size: 14px;
-        margin-left: 20px;
+        font-weight: 700;
+        font-size: 13px;
+        margin-left: 22px;
         transition: 0.3s cubic-bezier(0, 0, 0.3, 1);
         z-index: 2;
-        color: #000;
+        color: #3a4457;
     }
     :global(.dark .blocklyTreeLabel) {
         color: #fff;
     }
     :global(.blocklyTreeSelected .blocklyTreeLabel) {
-        margin-left: 4px;
+        margin-left: 20px;
         font-weight: 700;
-        color: #000b;
+        color: #fff;
     }
 
     :global(.categoryBubble) {
         position: absolute;
-        top: 6px;
-        left: 4px;
+        top: 4px;
+        left: 8px;
         width: 14px;
         height: 14px;
-        border-radius: 4px;
+        border-radius: 6px;
         box-sizing: border-box;
-        border: 1px solid #0008;
+        border: none;
         transition: 0.3s cubic-bezier(0, 0, 0.3, 1);
         z-index: 1;
     }
@@ -235,17 +247,20 @@
     :global(.blocklyTreeSelected .categoryBubble) {
         top: 0;
         left: 0;
-        width: 128px;
-        height: 24px;
-        border-radius: 0;
-        border-color: #0004;
-        border-left: none;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+        filter: drop-shadow(0 2px 4px #00000018);
     }
     :global(.blocklyTreeSelected .categoryBubble::after) {
         left: 10px;
         width: 14px;
         height: 14px;
         opacity: 1;
+    }
+    :global(.blocklyToolboxCategory:hover:not(.blocklyTreeSelected)) {
+        transform: translateX(1px);
+        filter: brightness(0.98);
     }
 
     :global(.blocklyFlyoutButtonBackground) {

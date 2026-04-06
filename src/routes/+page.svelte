@@ -96,6 +96,9 @@
   let workspace;
   let compiler = new Compiler();
   let code;
+  let blockSearchQuery = "";
+  let blockSearchMatches = [];
+  let blockSearchIndex = -1;
   const DEBUGGER_EDITOR_BASE_URL = "https://editor.02engine.org";
   let debuggerExtensionUri = "";
   let copiedExtensionUrl = false;
@@ -114,6 +117,9 @@
     code = compiler.compile(workspace, properties);
     debuggerExtensionUri = getExtensionUri();
     saveDraft(true);
+    if (blockSearchQuery.trim()) {
+      searchBlocks(true);
+    }
   }
 
   function toBase64(value) {
@@ -236,6 +242,49 @@
     });
   }
 
+  function blockMatchesQuery(block, query) {
+    if (!query) return false;
+    const target = query.toLowerCase();
+    const type = String(block.type || "").toLowerCase();
+    const text = String(block.toString ? block.toString() : "").toLowerCase();
+    return type.includes(target) || text.includes(target);
+  }
+
+  function focusBlock(block) {
+    if (!block || !workspace) return;
+    try {
+      block.select();
+      if (workspace.centerOnBlock) {
+        workspace.centerOnBlock(block.id);
+      }
+    } catch {}
+  }
+
+  function searchBlocks(silent = false) {
+    if (!workspace) return;
+    const query = blockSearchQuery.trim();
+    if (!query) {
+      blockSearchMatches = [];
+      blockSearchIndex = -1;
+      return;
+    }
+
+    const blocks = workspace.getAllBlocks(false).filter((block) => blockMatchesQuery(block, query));
+    blockSearchMatches = blocks;
+    blockSearchIndex = blocks.length > 0 ? 0 : -1;
+    if (blocks.length > 0) {
+      focusBlock(blocks[0]);
+    } else if (!silent) {
+      alert("No blocks matched this query.");
+    }
+  }
+
+  function gotoSearchMatch(step = 1) {
+    if (!blockSearchMatches.length) return;
+    blockSearchIndex = (blockSearchIndex + step + blockSearchMatches.length) % blockSearchMatches.length;
+    focusBlock(blockSearchMatches[blockSearchIndex]);
+  }
+
   function loadProject() {
     loadError = "";
     fileDialog({ accept: ".exf" }).then((files) => {
@@ -341,6 +390,28 @@
     <Tab title="Editor" {activeTab} {tabs} {handleTabClick} {registerTab}>
       <div id="editor">
         <div class="blockly-container">
+          <div class="block-search">
+            <input
+              type="text"
+              placeholder="Search blocks by text or type..."
+              bind:value={blockSearchQuery}
+              on:keydown={(event) => {
+                if (event.key === "Enter") {
+                  searchBlocks();
+                }
+              }}
+            />
+            <button on:click={() => searchBlocks()}>Search</button>
+            <button on:click={() => gotoSearchMatch(-1)} disabled={blockSearchMatches.length === 0}>Prev</button>
+            <button on:click={() => gotoSearchMatch(1)} disabled={blockSearchMatches.length === 0}>Next</button>
+            <span>
+              {#if blockSearchMatches.length > 0}
+                {blockSearchIndex + 1}/{blockSearchMatches.length}
+              {:else}
+                0/0
+              {/if}
+            </span>
+          </div>
           <BlocklyComponent {config} locale={en} bind:workspace />
         </div>
         <div class="code">
@@ -418,6 +489,51 @@
   .blockly-container {
     width: calc(100vw - 480px);
     height: 100%;
+    position: relative;
+  }
+
+  .block-search {
+    position: absolute;
+    top: 0.6rem;
+    left: 0.75rem;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #ffffffdd;
+    border: 1px solid #0002;
+    border-radius: 0.55rem;
+    padding: 0.35rem 0.45rem;
+    backdrop-filter: blur(4px);
+  }
+
+  .block-search input {
+    width: 260px;
+    border: 1px solid #0002;
+    border-radius: 0.4rem;
+    padding: 0.25rem 0.4rem;
+    background: #fff;
+  }
+
+  .block-search button {
+    border: none;
+    border-radius: 0.35rem;
+    padding: 0.25rem 0.5rem;
+    background: #6fff98;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .block-search button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  .block-search span {
+    min-width: 2.8rem;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #000b;
   }
 
   .code {
@@ -542,6 +658,21 @@
   :global(.dark) .properties-panel,
   :global(.dark) .blocks-panel {
     background: #ffffff08;
+  }
+
+  :global(.dark) .block-search {
+    background: #111d;
+    border-color: #fff2;
+  }
+
+  :global(.dark) .block-search input {
+    background: #111;
+    color: #fff;
+    border-color: #fff2;
+  }
+
+  :global(.dark) .block-search span {
+    color: #fffc;
   }
 
   :global(.dark) .debugger-extension-uri input {
