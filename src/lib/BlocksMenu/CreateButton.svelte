@@ -1,9 +1,9 @@
 <script>
-    import { assets } from '$app/paths';
+    import plusIcon from "$lib/images/nav/plus.svg";
 </script>
 
 <button on:click>
-    <img src={`${assets}/plus.svg`} alt="" />
+    <img src={plusIcon} alt="" />
 </button>
 
 <style>
