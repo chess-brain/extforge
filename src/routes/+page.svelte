@@ -389,7 +389,7 @@
   <TabManager let:activeTab let:tabs let:handleTabClick let:registerTab>
     <Tab title="Editor" {activeTab} {tabs} {handleTabClick} {registerTab}>
       <div id="editor">
-        <div class="blockly-container">
+        <div class="editor-search-row">
           <div class="block-search">
             <input
               type="text"
@@ -412,10 +412,14 @@
               {/if}
             </span>
           </div>
-          <BlocklyComponent {config} locale={en} bind:workspace />
         </div>
-        <div class="code">
-          <CodePreview {code} />
+        <div class="editor-main">
+          <div class="blockly-container">
+            <BlocklyComponent {config} locale={en} bind:workspace />
+          </div>
+          <div class="code">
+            <CodePreview {code} />
+          </div>
         </div>
       </div>
     </Tab>
@@ -482,21 +486,30 @@
 
   #editor {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     height: 100%;
+  }
+
+  .editor-search-row {
+    display: flex;
+    justify-content: center;
+    padding: 0.45rem 0.6rem 0.35rem;
+    border-bottom: 1px solid #0001;
+    background: #ffffffcf;
+  }
+
+  .editor-main {
+    display: flex;
+    flex: 1;
+    min-height: 0;
   }
 
   .blockly-container {
     width: calc(100vw - 480px);
     height: 100%;
-    position: relative;
   }
 
   .block-search {
-    position: absolute;
-    top: 0.6rem;
-    left: calc(170px + 1rem);
-    z-index: 6;
     display: flex;
     align-items: center;
     gap: 0.35rem;
@@ -676,6 +689,11 @@
     color: #fffc;
   }
 
+  :global(.dark) .editor-search-row {
+    background: #111c;
+    border-bottom-color: #fff2;
+  }
+
   :global(.dark) .debugger-extension-uri input {
     background: #111;
     border-color: #fff2;
@@ -696,12 +714,6 @@
   @media (max-width: 1280px) {
     .blockly-container {
       width: 100vw;
-    }
-
-    .block-search {
-      left: 0.75rem;
-      right: 0.75rem;
-      width: auto;
     }
 
     .block-search input {
