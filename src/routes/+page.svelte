@@ -95,6 +95,11 @@
   let workspace;
   let compiler = new Compiler();
   let code;
+  let debuggerEngine = "turbowarp";
+  let debuggerUrl = "";
+  let debuggerExtensionUri = "";
+  let autoRefreshDebugger = true;
+  let debuggerRefreshTimer: ReturnType<typeof setTimeout> | undefined;
   let properties = {
     name: "Extension",
     id: "extensionID",
@@ -103,6 +108,43 @@
 
   function updateGeneratedCode() {
     code = compiler.compile(workspace, properties);
+    if (autoRefreshDebugger) {
+      refreshDebugger(true);
+    }
+  }
+
+  function toBase64(value) {
+    return btoa(unescape(encodeURIComponent(value)));
+  }
+
+  function getExtensionUri() {
+    return "data:text/plain;base64," + toBase64(code || "");
+  }
+
+  function getDebuggerUrl() {
+    const extensionUri = getExtensionUri();
+    if (debuggerEngine === "scratch") {
+      return "https://scratch.mit.edu/projects/editor/";
+    }
+    return "https://turbowarp.org/editor?extension=" + encodeURIComponent(extensionUri);
+  }
+
+  function refreshDebugger(debounce = false) {
+    clearTimeout(debuggerRefreshTimer);
+    const update = () => {
+      debuggerExtensionUri = getExtensionUri();
+      debuggerUrl = getDebuggerUrl();
+    };
+    if (debounce) {
+      debuggerRefreshTimer = setTimeout(update, 400);
+      return;
+    }
+    update();
+  }
+
+  function openDebuggerInNewTab() {
+    const url = getDebuggerUrl();
+    window.open(url, "_blank")?.focus();
   }
 
   function openModal(id) {
@@ -178,6 +220,8 @@
 
     registerCategories(workspace);
     registerButtons(workspace);
+    updateGeneratedCode();
+    refreshDebugger();
 
     updateTheme();
 
@@ -243,11 +287,48 @@
         </div>
       </div>
     </Tab>
-    <Tab title="Blocks" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <BlocksMenu />
+    <Tab title="Display" {activeTab} {tabs} {handleTabClick} {registerTab}>
+      <div class="display">
+        <div class="properties-panel">
+          <PropertiesPicker {properties} on:update={updateGeneratedCode} />
+        </div>
+        <div class="blocks-panel">
+          <BlocksMenu />
+        </div>
+      </div>
     </Tab>
-    <Tab title="Properties" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <PropertiesPicker {properties} on:update={updateGeneratedCode} />
+    <Tab title="Debugger(Testing)" {activeTab} {tabs} {handleTabClick} {registerTab}>
+      <div class="debugger">
+        <div class="debugger-toolbar">
+          <label>
+            Runtime
+            <select bind:value={debuggerEngine} on:change={() => refreshDebugger()}>
+              <option value="turbowarp">TurboWarp</option>
+              <option value="scratch">Scratch</option>
+            </select>
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" bind:checked={autoRefreshDebugger} />
+            Auto refresh
+          </label>
+          <button on:click={() => refreshDebugger()}>Refresh</button>
+          <button on:click={openDebuggerInNewTab}>Open in New Tab</button>
+        </div>
+        <p class="debugger-status">
+          Imported Extension: <b>{properties.name}</b> (`{properties.id}`)
+        </p>
+        <label class="debugger-extension-uri">
+          Extension URL
+          <input value={debuggerExtensionUri} readonly />
+        </label>
+        {#if debuggerEngine === "scratch"}
+          <p class="debugger-note">
+            Scratch editor does not auto-load custom unsandboxed extensions.
+            Use TurboWarp for built-in extension import and debugging.
+          </p>
+        {/if}
+        <iframe title="Debugger Runtime" src={debuggerUrl} />
+      </div>
     </Tab>
     <Tab title="Export" {activeTab} {tabs} {handleTabClick} {registerTab}>
       <ExportMenu {code} />
@@ -280,6 +361,108 @@
     height: 100%;
   }
 
+  .display {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0.75rem;
+  }
+
+  .properties-panel {
+    min-height: 210px;
+    border-radius: 8px;
+    background: #00000008;
+  }
+
+  .blocks-panel {
+    min-height: 0;
+    flex: 1;
+    border-radius: 8px;
+    background: #00000008;
+    overflow: auto;
+  }
+
+  .debugger {
+    padding: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    box-sizing: border-box;
+    height: 100%;
+  }
+
+  .debugger-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .debugger-toolbar label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.875rem;
+  }
+
+  .debugger-toolbar button {
+    border: none;
+    border-radius: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    cursor: pointer;
+    background: #6fff98;
+    font-weight: 700;
+  }
+
+  .debugger-status, .debugger-note {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+
+  .debugger-extension-uri {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    font-size: 0.875rem;
+  }
+
+  .debugger-extension-uri input {
+    border: 1px solid #0002;
+    border-radius: 0.4rem;
+    padding: 0.35rem 0.5rem;
+    background: #fff;
+    color: inherit;
+    width: 100%;
+    box-sizing: border-box;
+    font-family: monospace;
+    font-size: 0.75rem;
+  }
+
+  iframe {
+    border: 1px solid #0002;
+    border-radius: 0.6rem;
+    background: #fff;
+    width: 100%;
+    height: 100%;
+    min-height: 520px;
+  }
+
+  :global(.dark) .properties-panel,
+  :global(.dark) .blocks-panel {
+    background: #ffffff08;
+  }
+
+  :global(.dark) iframe {
+    border-color: #fff2;
+  }
+
+  :global(.dark) .debugger-extension-uri input {
+    background: #111;
+    border-color: #fff2;
+  }
+
   @media (max-width: 1280px) {
     .blockly-container {
       width: 100vw;
@@ -287,6 +470,10 @@
 
     .code {
       display: none;
+    }
+
+    iframe {
+      min-height: 420px;
     }
   }
 </style>
