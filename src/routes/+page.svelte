@@ -29,6 +29,7 @@
   import NavIconLoad from "$lib/images/nav/load.svg";
   import NavIconExperiments from "$lib/images/nav/experiments.svg";
   import NavIconDark from "$lib/images/nav/dark.svg";
+  import NavIconLang from "$lib/images/nav/language.svg";
 
   import TabManager from "$lib/TabManager/TabManager.svelte";
   import Tab from "$lib/TabManager/Tab.svelte";
@@ -270,6 +271,9 @@
   <NavigationDivider />
   <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
     Experiments
+  </NavigationButton>
+  <NavigationButton icon={NavIconLang} on:click={alert("Testing this feature!")}>
+    Language
   </NavigationButton>
   <NavigationDivider />
   <NavigationButton on:click={() => window.open("https://discord.gg/5EZ2Ngreys", '_blank')}>
