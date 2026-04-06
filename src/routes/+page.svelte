@@ -27,6 +27,7 @@
 
   import NavIconSave from "$lib/images/nav/save.svg";
   import NavIconLoad from "$lib/images/nav/load.svg";
+  import NavIconExit from "$lib/images/nav/exit.svg";
   import NavIconExperiments from "$lib/images/nav/experiments.svg";
   import NavIconDark from "$lib/images/nav/dark.svg";
   import NavIconLang from "$lib/images/nav/language.svg";
@@ -309,6 +310,28 @@
     });
   }
 
+  function resetProject() {
+    if (!workspace) return;
+    if (!confirm("Reset the current project? This will clear all blocks and custom data.")) {
+      return;
+    }
+
+    try {
+      workspace.clear();
+    } catch {}
+
+    properties.name = "Extension";
+    properties.id = "extensionID";
+    properties.color = "#6FFF98";
+    window.variables = {};
+    window.blocks = {};
+    blockSearchQuery = "";
+    blockSearchMatches = [];
+    blockSearchIndex = -1;
+    loadError = "";
+    updateGeneratedCode();
+  }
+
   onMount(() => {
     code = "";
 
@@ -363,6 +386,9 @@
   </NavigationButton>
   <NavigationButton icon={NavIconLoad} on:click={loadProject}>
     Load
+  </NavigationButton>
+  <NavigationButton icon={NavIconExit} on:click={resetProject}>
+    Reset
   </NavigationButton>
   <NavigationButton on:click={() => saveDraft(false)}>
     Save Draft
