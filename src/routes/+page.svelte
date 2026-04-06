@@ -99,7 +99,7 @@
   let debuggerUrl = "";
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
-  let debuggerRefreshTimer: ReturnType<typeof setTimeout> | undefined;
+  let debuggerRefreshTimer;
   let properties = {
     name: "Extension",
     id: "extensionID",
