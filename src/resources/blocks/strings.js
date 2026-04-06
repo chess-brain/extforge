@@ -451,9 +451,11 @@ function register() {
             for (let i = 0; i < this.items_; i++) {
                 if (connections[i] && oldItems !== this.items_) {
                     const connection = this.getInput(`ITEM${i}`).connection.targetConnection;
-                    const block = connection.sourceBlock_;
-                    connection.disconnect();
-                    block.dispose(true)
+                    if (connection) {
+                        const block = connection.sourceBlock_;
+                        connection.disconnect();
+                        if (block) block.dispose(true)
+                    }
                 }
                 Blockly.Mutator.reconnect(connections[i], this, `ITEM${i}`);
             }
@@ -497,7 +499,9 @@ function register() {
                     inputInside.setShadow(true)
                     inputInside.initSvg()
                     inputInside.render()
-                    inputInside.outputConnection.connect(input.connection)
+                    if (inputInside.outputConnection && input && input.connection) {
+                        inputInside.outputConnection.connect(input.connection)
+                    }
                     if (i === 0) {
                         input.appendField("join");
                     }

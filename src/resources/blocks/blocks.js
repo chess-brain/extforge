@@ -60,7 +60,9 @@ function register() {
                         reporter.updateShape_()
                         reporter.initSvg()
                         reporter.render()
-                        reporter.outputConnection.connect(input.connection)
+                        if (reporter.outputConnection && input && input.connection) {
+                            reporter.outputConnection.connect(input.connection)
+                        }
                         break
                 }
 
@@ -221,7 +223,9 @@ function register() {
                         inputInside.setShadow(true)
                         inputInside.initSvg()
                         inputInside.render()
-                        inputInside.outputConnection.connect(input.connection)
+                        if (inputInside.outputConnection && input && input.connection) {
+                            inputInside.outputConnection.connect(input.connection)
+                        }
                         break
                     case "number":
                         var input = this.appendValueInput(`INPUT${i}`)
@@ -231,7 +235,9 @@ function register() {
                         inputInside.setShadow(true)
                         inputInside.initSvg()
                         inputInside.render()
-                        inputInside.outputConnection.connect(input.connection)
+                        if (inputInside.outputConnection && input && input.connection) {
+                            inputInside.outputConnection.connect(input.connection)
+                        }
                         break
                     case "boolean":
                         var input = this.appendValueInput(`INPUT${i}`)

@@ -35,14 +35,20 @@ Blockly.Block.prototype.getFieldInput = function(name) {
 }
 Blockly.Input.prototype.getTargetField = function() {
     if (!this.fieldName) return null
-    return this.connection.targetConnection.sourceBlock_.inputList[0].fieldRow[0]
+    const target = this.connection && this.connection.targetConnection && this.connection.targetConnection.sourceBlock_
+    if (!target || !target.inputList || !target.inputList[0] || !target.inputList[0].fieldRow || !target.inputList[0].fieldRow[0]) {
+        return null
+    }
+    return target.inputList[0].fieldRow[0]
 }
 Blockly.Input.prototype.getConnectedBlock = function() {
-    return this.connection.targetConnection.sourceBlock_
+    return this.connection && this.connection.targetConnection && this.connection.targetConnection.sourceBlock_
 }
 Blockly.Input.prototype.getTargetBlockType = function() {
     if (!this.fieldName) return null
-    return `${this.getSourceBlock()}_${this.fieldName}`
+    const source = this.getSourceBlock && this.getSourceBlock()
+    if (!source) return null
+    return `${source}_${this.fieldName}`
 }
 
 
@@ -84,7 +90,9 @@ export default (arg, color, name, block) => {
             newBlock.setShadow(true)
             newBlock.initSvg()
             newBlock.render()
-            blockConnection.connect(input.connection)
+            if (blockConnection && input && input.connection) {
+                blockConnection.connect(input.connection)
+            }
         }
         return {
             type: 'input_value',
