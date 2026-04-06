@@ -272,7 +272,7 @@
   <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
     Experiments
   </NavigationButton>
-  <NavigationButton icon={NavIconLang} on:click={alert("Testing this feature!")}>
+  <NavigationButton icon={NavIconLang} on:click={() => alert("Testing this feature!")}>
     Language
   </NavigationButton>
   <NavigationDivider />
