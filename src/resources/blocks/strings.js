@@ -440,7 +440,7 @@ function register() {
 
             for (let i = 0; i < this.items_; i++) {
                 const connection = this.getInput(`ITEM${i}`).connection.targetConnection;
-                if (connection && !connection.sourceBlock_.isShadow() && connections.indexOf(connection) === -1) {
+                if (connection && connection.sourceBlock_ && !connection.sourceBlock_.isShadow() && connections.indexOf(connection) === -1) {
                     connection.disconnect();
                 }
             }
@@ -474,7 +474,7 @@ function register() {
                 clauseBlock.valueConnection_ = input
                 && input.connection.targetConnection
                 && input.connection.targetConnection.sourceBlock_
-                &&!input.connection.targetConnection.sourceBlock_.isShadow()
+                && !input.connection.targetConnection.sourceBlock_.isShadow()
                 && input.connection.targetConnection
 
                 i++;

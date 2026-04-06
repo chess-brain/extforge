@@ -102,8 +102,7 @@ function register() {
             {
                 type: 'field_input',
                 name: 'NOTE',
-                text: 'C4',
-                acceptsBlocks: true
+                text: 'C4'
             },
             {
                 type: 'input_value',
@@ -116,7 +115,7 @@ function register() {
         inputsInline: true,
         colour: categoryColor
     }, (block) => {
-        const NOTE = javascriptGenerator.valueToCode(block, 'NOTE') || '"C4"';
+        const NOTE = JSON.stringify(block.getFieldValue('NOTE') || "C4");
         const BEATS = javascriptGenerator.valueToCode(block, 'BEATS') || '1';
         return `await ExtForge.Music.playNote(${NOTE}, ${BEATS});\n`;
     });

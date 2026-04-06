@@ -268,11 +268,6 @@
         stroke: #575e75;
         stroke-width: 2px;
     }
-    :global(.blocklyFlyoutLabel),
-    :global(.blocklyFlyoutLabelBackground),
-    :global(.blocklyFlyoutLabelText) {
-        display: none !important;
-    }
     :global(.blocklyFlyoutButton:hover .blocklyFlyoutButtonBackground) {
         fill: #0001 !important;
     }

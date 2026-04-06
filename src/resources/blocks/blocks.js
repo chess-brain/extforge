@@ -37,6 +37,12 @@ function register() {
         },
 
         updateShape_: function() {
+            for (let i = 0; this.getInput(`INPUT${i}`); i++) {
+                const input = this.getInput(`INPUT${i}`)
+                if (input && input.connection && input.connection.targetConnection) {
+                    input.connection.targetConnection.disconnect()
+                }
+            }
             for (let i = 0; this.removeInput(`INPUT${i}`, true); i++) {}
 
             let block = window.blocks[this.blockId_]
@@ -183,6 +189,12 @@ function register() {
         },
 
         updateShape_: function() {
+            for (let i = 0; this.getInput(`INPUT${i}`); i++) {
+                const input = this.getInput(`INPUT${i}`)
+                if (input && input.connection && input.connection.targetConnection) {
+                    input.connection.targetConnection.disconnect()
+                }
+            }
             for (let i = 0; this.removeInput(`INPUT${i}`, true); i++) {}
 
             let block = window.blocks[this.blockId_]
