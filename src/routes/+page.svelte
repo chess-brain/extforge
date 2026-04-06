@@ -495,7 +495,7 @@
   .block-search {
     position: absolute;
     top: 0.6rem;
-    left: 0.75rem;
+    left: calc(170px + 1rem);
     z-index: 6;
     display: flex;
     align-items: center;
@@ -508,7 +508,7 @@
   }
 
   .block-search input {
-    width: 260px;
+    width: 300px;
     border: 1px solid #0002;
     border-radius: 0.4rem;
     padding: 0.25rem 0.4rem;
@@ -525,8 +525,9 @@
   }
 
   .block-search button:disabled {
-    opacity: 0.45;
+    opacity: 0.55;
     cursor: not-allowed;
+    filter: grayscale(0.2);
   }
 
   .block-search span {
@@ -695,6 +696,16 @@
   @media (max-width: 1280px) {
     .blockly-container {
       width: 100vw;
+    }
+
+    .block-search {
+      left: 0.75rem;
+      right: 0.75rem;
+      width: auto;
+    }
+
+    .block-search input {
+      width: min(52vw, 280px);
     }
 
     .code {
