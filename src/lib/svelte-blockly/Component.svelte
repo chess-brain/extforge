@@ -7,10 +7,62 @@
     import { createEventDispatcher } from "svelte";
     import Blockly from "blockly/core.js";
     import registerDynamicCategories from "../../resources/categories";
+    import iconBlocks from "$lib/images/blockicon/blocks.svg";
+    import iconBrowser from "$lib/images/blockicon/browser.svg";
+    import iconControl from "$lib/images/blockicon/control.svg";
+    import iconEvents from "$lib/images/blockicon/events.svg";
+    import iconInput from "$lib/images/blockicon/input.svg";
+    import iconLambda from "$lib/images/blockicon/lambda.svg";
+    import iconList from "$lib/images/blockicon/list.svg";
+    import iconMaths from "$lib/images/blockicon/maths.svg";
+    import iconMusic from "$lib/images/blockicon/music.svg";
+    import iconRuntime from "$lib/images/blockicon/runtime.svg";
+    import iconString from "$lib/images/blockicon/string.svg";
+    import iconTargets from "$lib/images/blockicon/targets.svg";
+    import iconVariable from "$lib/images/blockicon/variable.svg";
+    import iconVector from "$lib/images/blockicon/vector.svg";
+
     export let config = {};
     export let locale;
     export let workspace = undefined;
     export let transform = undefined;
+
+    const categoryIcons = {
+        events: iconEvents,
+        control: iconControl,
+        math: iconMaths,
+        strings: iconString,
+        vectors: iconVector,
+        inputs: iconInput,
+        variables: iconVariable,
+        lists: iconList,
+        lambdas: iconLambda,
+        blocks: iconBlocks,
+        runtime: iconRuntime,
+        targets: iconTargets,
+        browser: iconBrowser,
+        music: iconMusic,
+    };
+
+    function normalizeCategoryName(name) {
+        return (name || "").toLowerCase().replace(/\s+/g, "");
+    }
+
+    function applyCategoryIcons(root) {
+        const categories = root.querySelectorAll(".blocklyToolboxCategory");
+        for (const category of categories) {
+            const label = category.querySelector(".blocklyTreeLabel")?.textContent;
+            const key = normalizeCategoryName(label);
+            const icon = categoryIcons[key];
+
+            if (icon) {
+                category.style.setProperty("--category-icon", `url(\"${icon}\")`);
+            } else {
+                category.style.removeProperty("--category-icon");
+            }
+        }
+    }
+
     $: {
         // evaluate transform to establish a reactive dependency
         transform;
@@ -29,6 +81,7 @@
             });
             registerDynamicCategories(workspace);
             if (config.toolbox) workspace.updateToolbox(config.toolbox);
+            requestAnimationFrame(() => applyCategoryIcons(root));
             workspace.refreshToolboxSelection();
             if (dom !== null) {
                 try {
@@ -42,6 +95,9 @@
             }
             workspace.addChangeListener(() => {
                 dispatch("change");
+            });
+            workspace.addChangeListener(() => {
+                requestAnimationFrame(() => applyCategoryIcons(root));
             });
             // TODO this is a terrible hack, but there's no scroll event
             // translate is the most fundamental in a set of methods
@@ -159,6 +215,21 @@
         transition: 0.3s cubic-bezier(0, 0, 0.3, 1);
         z-index: 1;
     }
+    :global(.blocklyToolboxCategory .categoryBubble::after) {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 2px;
+        width: 8px;
+        height: 8px;
+        transform: translateY(-50%);
+        background-image: var(--category-icon);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        opacity: 0.85;
+        pointer-events: none;
+    }
     :global(.blocklyTreeSelected .categoryBubble) {
         top: 0;
         left: 0;
@@ -167,6 +238,12 @@
         border-radius: 0;
         border-color: #0004;
         border-left: none;
+    }
+    :global(.blocklyTreeSelected .categoryBubble::after) {
+        left: 6px;
+        width: 12px;
+        height: 12px;
+        opacity: 1;
     }
 
     :global(.blocklyFlyoutButtonBackground) {
