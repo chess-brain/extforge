@@ -81,7 +81,7 @@ class Compiler {
 
         const headerCode = [
             `/*`,
-            `   Created with ExtForge`,
+            `   Created with CB-ExtGallary`,
             `   https://jwklong.github.io/extforge`,
             `*/`,
             `(async function (Scratch) {`,
@@ -98,7 +98,7 @@ class Compiler {
                 `}`,
                 ``,
                 `let extension = new Extension();`,
-                `// code compiled from extforge`
+                `// code compiled from CB-ExtGallary`
             ]
         }
         const footerCode = [

@@ -1,4 +1,4 @@
-# extforge
+# CB-ExtGallary
 
 A svelte-powered app to make extensions for PenguinMod with blockly
 
