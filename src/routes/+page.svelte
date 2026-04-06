@@ -100,6 +100,8 @@
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
   let debuggerRefreshTimer;
+  const TURBOWARP_EMBED_PROJECT_ID = "15832807";
+  const SCRATCH_EMBED_PROJECT_ID = "10128407";
   let properties = {
     name: "Extension",
     id: "extensionID",
@@ -124,9 +126,14 @@
   function getDebuggerUrl() {
     const extensionUri = getExtensionUri();
     if (debuggerEngine === "scratch") {
-      return "https://scratch.mit.edu/projects/editor/";
+      return `https://scratch.mit.edu/projects/${SCRATCH_EMBED_PROJECT_ID}/embed`;
     }
-    return "https://turbowarp.org/editor?extension=" + encodeURIComponent(extensionUri);
+    const params = new URLSearchParams({
+      autoplay: "1",
+      "settings-button": "1",
+      extension: extensionUri
+    });
+    return `https://turbowarp.org/${TURBOWARP_EMBED_PROJECT_ID}/embed?${params.toString()}`;
   }
 
   function refreshDebugger(debounce = false) {
@@ -143,7 +150,10 @@
   }
 
   function openDebuggerInNewTab() {
-    const url = getDebuggerUrl();
+    const extensionUri = getExtensionUri();
+    const url = debuggerEngine === "scratch"
+      ? "https://scratch.mit.edu/projects/editor/"
+      : "https://turbowarp.org/editor?extension=" + encodeURIComponent(extensionUri);
     window.open(url, "_blank")?.focus();
   }
 
@@ -323,8 +333,11 @@
         </label>
         {#if debuggerEngine === "scratch"}
           <p class="debugger-note">
-            Scratch editor does not auto-load custom unsandboxed extensions.
-            Use TurboWarp for built-in extension import and debugging.
+            Scratch iframe uses the public player embed. Click "Open in New Tab" to use the full Scratch editor.
+          </p>
+        {:else}
+          <p class="debugger-note">
+            TurboWarp iframe uses the embeddable player. Click "Open in New Tab" for the full editor with extension import.
           </p>
         {/if}
         <iframe title="Debugger Runtime" src={debuggerUrl} />
