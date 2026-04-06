@@ -137,14 +137,8 @@
     <category name="Lambdas" colour="#d46">
 
     </category>
-    <category name="Search" colour="#5ab" custom="search">
-        <!-- resources/categories/meta.js -->
-    </category>
     <category name="Blocks" colour="#b6f" custom="blocks">
         <!-- resources/categories/blocks.js -->
-    </category>
-    <category name="Favorites" colour="#ba6" custom="favorites">
-        <!-- resources/categories/meta.js -->
     </category>
 
     <sep />

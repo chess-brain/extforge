@@ -97,16 +97,12 @@
   let compiler = new Compiler();
   let code;
   const DEBUGGER_EDITOR_BASE_URL = "https://editor.02engine.org";
-  let debuggerUrl = "";
   let debuggerExtensionUri = "";
-  let autoRefreshDebugger = true;
-  let debuggerRefreshTimer;
   let copiedExtensionUrl = false;
   let loadError = "";
   let lastAutoSaveAt = "";
   let recentFiles: Array<{ name: string; time: string }> = [];
   const DRAFT_STORAGE_KEY = "extforge_draft_v1";
-  const DEBUGGER_CONFIG_STORAGE_KEY = "extforge_debugger_config_v1";
   const RECENT_FILES_STORAGE_KEY = "extforge_recent_files_v1";
   let properties = {
     name: "Extension",
@@ -116,9 +112,7 @@
 
   function updateGeneratedCode() {
     code = compiler.compile(workspace, properties);
-    if (autoRefreshDebugger) {
-      refreshDebugger(true);
-    }
+    debuggerExtensionUri = getExtensionUri();
     saveDraft(true);
   }
 
@@ -128,24 +122,6 @@
 
   function getExtensionUri() {
     return "data:text/plain;base64," + toBase64(code || "");
-  }
-
-  function getDebuggerUrl() {
-    // Keep iframe URL short to avoid oversized Referrer and blocked script loads.
-    return `${DEBUGGER_EDITOR_BASE_URL}/editor?embedded=1`;
-  }
-
-  function refreshDebugger(debounce = false) {
-    clearTimeout(debuggerRefreshTimer);
-    const update = () => {
-      debuggerExtensionUri = getExtensionUri();
-      debuggerUrl = `${getDebuggerUrl()}&t=${Date.now()}`;
-    };
-    if (debounce) {
-      debuggerRefreshTimer = setTimeout(update, 400);
-      return;
-    }
-    update();
   }
 
   async function copyExtensionUrl() {
@@ -193,7 +169,6 @@
 
     Blockly.serialization.workspaces.load(projectJson?.blockly ?? {}, workspace);
     updateGeneratedCode();
-    refreshDebugger();
   }
 
   function saveDraft(silent = false) {
@@ -296,14 +271,9 @@
     registerCategories(workspace);
     registerButtons(workspace);
 
-    try {
-      const debuggerConfig = JSON.parse(localStorage.getItem(DEBUGGER_CONFIG_STORAGE_KEY) || "{}");
-      autoRefreshDebugger = debuggerConfig.autoRefreshDebugger ?? true;
-    } catch {}
     readRecentFiles();
     restoreDraft(true);
     updateGeneratedCode();
-    refreshDebugger();
 
     updateTheme();
 
@@ -329,9 +299,6 @@
 
     addEventListener('unload', event => {
       localStorage.setItem('localConfig', JSON.stringify(localConfig))
-      localStorage.setItem(DEBUGGER_CONFIG_STORAGE_KEY, JSON.stringify({
-        autoRefreshDebugger
-      }))
     })
   });
 </script>
@@ -398,13 +365,8 @@
             Source
             <input value={DEBUGGER_EDITOR_BASE_URL} readonly />
           </label>
-          <label class="checkbox">
-            <input type="checkbox" bind:checked={autoRefreshDebugger} />
-            Auto refresh
-          </label>
-          <button on:click={() => refreshDebugger()}>Refresh</button>
           <button on:click={copyExtensionUrl}>{copiedExtensionUrl ? "Copied" : "Copy Extension URL"}</button>
-          <button on:click={openDebuggerInNewTab}>Open in New Tab</button>
+          <button on:click={openDebuggerInNewTab}>Open 02Engine Debugger</button>
         </div>
         {#if loadError}
           <p class="debugger-error">{loadError}</p>
@@ -417,7 +379,7 @@
           <input value={debuggerExtensionUri} readonly />
         </label>
         <p class="debugger-note">
-          Embedded panel now loads the editor view. Use "Open in New Tab" to load current extension code into editor.
+          Debugger now opens directly in a new window for stable testing.
         </p>
         <p class="debugger-note">Last draft auto-save: {lastAutoSaveAt || "Not yet"}</p>
         {#if recentFiles.length > 0}
@@ -430,7 +392,6 @@
             </ul>
           </div>
         {/if}
-        <iframe title="Debugger Runtime" src={debuggerUrl} referrerpolicy="no-referrer" />
       </div>
     </Tab>
     <Tab title="Export" {activeTab} {tabs} {handleTabClick} {registerTab}>
@@ -578,22 +539,9 @@
     font-size: 0.75rem;
   }
 
-  iframe {
-    border: 1px solid #0002;
-    border-radius: 0.6rem;
-    background: #fff;
-    width: 100%;
-    height: 100%;
-    min-height: 520px;
-  }
-
   :global(.dark) .properties-panel,
   :global(.dark) .blocks-panel {
     background: #ffffff08;
-  }
-
-  :global(.dark) iframe {
-    border-color: #fff2;
   }
 
   :global(.dark) .debugger-extension-uri input {
@@ -622,8 +570,5 @@
       display: none;
     }
 
-    iframe {
-      min-height: 420px;
-    }
   }
 </style>
