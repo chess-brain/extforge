@@ -11,6 +11,7 @@ import registerBlocks from "./blocks";
 
 import registerRuntime from "./runtime";
 import registerScript from "./script";
+import registerMusic from "./music";
 
 export default () => {
     registerGeneric();
@@ -26,4 +27,5 @@ export default () => {
 
     registerRuntime();
     registerScript();
+    registerMusic();
 }

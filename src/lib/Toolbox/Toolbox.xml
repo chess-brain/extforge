@@ -178,4 +178,28 @@
         <block type="script_evalb" />
         <block type="script_evalv" />
     </category>
+    <category name="Music" colour="#c4c">
+        <block type="music_tone">
+            <value name="FREQUENCY">
+                <shadow type="math_number">
+                    <field name="INPUT">440</field>
+                </shadow>
+            </value>
+            <value name="DURATION">
+                <shadow type="math_number">
+                    <field name="INPUT">200</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="music_stop" />
+        <sep gap="48"></sep>
+        <block type="music_setvolume">
+            <value name="VOLUME">
+                <shadow type="math_number">
+                    <field name="INPUT">50</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="music_volume" />
+    </category>
 </xml>

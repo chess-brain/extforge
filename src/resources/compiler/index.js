@@ -65,6 +65,73 @@ const ExtForge = {
         countString: (x, y) => {
             return y.length == 0 ? 0 : x.split(y).length - 1
         }
+    },
+
+    Music: new function() {
+        this.context = null;
+        this.masterGain = null;
+        this.activeNodes = new Set();
+        this.volume = 0.5;
+
+        this.ensureContext = () => {
+            if (!this.context) {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) {
+                    throw new Error("Web Audio API is not supported in this environment.");
+                }
+                this.context = new AudioContextClass();
+                this.masterGain = this.context.createGain();
+                this.masterGain.gain.value = this.volume;
+                this.masterGain.connect(this.context.destination);
+            }
+            if (this.context.state === "suspended") {
+                this.context.resume();
+            }
+        };
+
+        this.setVolume = (value) => {
+            this.ensureContext();
+            const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
+            this.volume = safeValue / 100;
+            this.masterGain.gain.value = this.volume;
+        };
+
+        this.getVolume = () => {
+            return Math.round(this.volume * 100);
+        };
+
+        this.playTone = async (frequency, durationMs) => {
+            this.ensureContext();
+            const safeFrequency = Math.max(20, Number(frequency) || 440);
+            const safeDuration = Math.max(0, Number(durationMs) || 200);
+
+            const oscillator = this.context.createOscillator();
+            const gain = this.context.createGain();
+            oscillator.type = "sine";
+            oscillator.frequency.value = safeFrequency;
+
+            gain.gain.setValueAtTime(0, this.context.currentTime);
+            gain.gain.linearRampToValueAtTime(1, this.context.currentTime + 0.01);
+            gain.gain.linearRampToValueAtTime(0, this.context.currentTime + safeDuration / 1000);
+
+            oscillator.connect(gain);
+            gain.connect(this.masterGain);
+            oscillator.start();
+            oscillator.stop(this.context.currentTime + safeDuration / 1000 + 0.02);
+            this.activeNodes.add(oscillator);
+
+            await new Promise(resolve => setTimeout(resolve, safeDuration));
+            this.activeNodes.delete(oscillator);
+        };
+
+        this.stopAll = () => {
+            for (const oscillator of this.activeNodes) {
+                try {
+                    oscillator.stop();
+                } catch {}
+            }
+            this.activeNodes.clear();
+        };
     }
 }
 `
