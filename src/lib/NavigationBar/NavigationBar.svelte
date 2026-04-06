@@ -1,6 +1,10 @@
+<script>
+    import Icon from "$lib/static/icon.svg"
+</script>
+
 <div class="nav">
     <img
-        src="/icon.svg"
+        src={Icon}
         alt="Logo"
         class="logo-margin"
         style="height: 40px;"
