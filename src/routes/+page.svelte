@@ -25,11 +25,6 @@
   import NavigationButton from "$lib/NavigationBar/Button.svelte";
   import NavigationDivider from "$lib/NavigationBar/Divider.svelte";
 
-  import NavIconSave from "$lib/images/nav/save.svg";
-  import NavIconLoad from "$lib/images/nav/load.svg";
-  import NavIconExperiments from "$lib/images/nav/experiments.svg";
-  import NavIconDark from "$lib/images/nav/dark.svg";
-
   import TabManager from "$lib/TabManager/TabManager.svelte";
   import Tab from "$lib/TabManager/Tab.svelte";
 
@@ -98,7 +93,7 @@
   let properties = {
     name: "Extension",
     id: "extensionID",
-    color: "#0fbd8c",
+    color: "#6FFF98",
   };
 
   function updateGeneratedCode() {
@@ -156,7 +151,7 @@
 
         properties.name = projectJson.properties.name ?? "Extension";
         properties.id = projectJson.properties.id ?? "extensionID";
-        properties.color = projectJson.properties.color ?? "#0fbd8c";
+        properties.color = projectJson.properties.color ?? "#6FFF98";
 
         window.variables = projectJson.variables ?? {};
         window.blocks = projectJson.blocks ?? {};
@@ -212,19 +207,19 @@
 </head>
 
 <NavigationBar>
-  <NavigationButton icon={NavIconDark} on:click={() => {
+  <NavigationButton icon="/icon.svg" on:click={() => {
     localConfig.dark = !localConfig.dark;
     updateTheme()
   }}></NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={NavIconSave} on:click={downloadProject}>
+  <NavigationButton icon="/icon.svg" on:click={downloadProject}>
     Save
   </NavigationButton>
-  <NavigationButton icon={NavIconLoad} on:click={loadProject}>
+  <NavigationButton icon="/icon.svg" on:click={loadProject}>
     Load
   </NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments")}>
+  <NavigationButton icon="/icon.svg" on:click={() => openModal("experiments")}>
     Experiments
   </NavigationButton>
   <NavigationDivider />

@@ -1,8 +1,6 @@
 <script>
     import { onMount } from "svelte";
 
-    import ExitIcon from "$lib/images/nav/exit.svg"
-
     export let id = "unknown";
     export let title = "Unknown";
 
@@ -23,7 +21,7 @@
         <div class="bar">
             <span class="title">{title}</span>
             <button class="exit" on:click={data.toggle}>
-                <img src={ExitIcon} alt="" />
+                <img src="/icon.svg" alt="" />
             </button>
         </div>
         <div class="body">
