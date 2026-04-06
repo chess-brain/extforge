@@ -208,19 +208,19 @@
 </head>
 
 <NavigationBar>
-  <NavigationButton icon={`${assets}/icon.svg`} on:click={() => {
+  <NavigationButton icon={`${assets}/dark.svg`} on:click={() => {
     localConfig.dark = !localConfig.dark;
     updateTheme()
   }}></NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={`${assets}/icon.svg`} on:click={downloadProject}>
+  <NavigationButton icon={`${assets}/save.svg`} on:click={downloadProject}>
     Save
   </NavigationButton>
-  <NavigationButton icon={`${assets}/icon.svg`} on:click={loadProject}>
+  <NavigationButton icon={`${assets}/load.svg`} on:click={loadProject}>
     Load
   </NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={`${assets}/icon.svg`} on:click={() => openModal("experiments")}>
+  <NavigationButton icon={`${assets}/experiments.svg`} on:click={() => openModal("experiments")}>
     Experiments
   </NavigationButton>
   <NavigationDivider />
