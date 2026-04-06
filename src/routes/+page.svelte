@@ -96,6 +96,7 @@
   let compiler = new Compiler();
   let code;
   const DEBUGGER_EDITOR_BASE_URL = "https://editor.02engine.org";
+  const DEBUGGER_EMBED_PROJECT_ID = "60917032";
   let debuggerUrl = "";
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
@@ -123,7 +124,12 @@
 
   function getDebuggerUrl() {
     const extensionUri = getExtensionUri();
-    return `${DEBUGGER_EDITOR_BASE_URL}/editor?extension=${encodeURIComponent(extensionUri)}`;
+    const params = new URLSearchParams({
+      autoplay: "1",
+      "settings-button": "1",
+      extension: extensionUri
+    });
+    return `${DEBUGGER_EDITOR_BASE_URL}/${DEBUGGER_EMBED_PROJECT_ID}/embed?${params.toString()}`;
   }
 
   function refreshDebugger(debounce = false) {
@@ -140,7 +146,9 @@
   }
 
   function openDebuggerInNewTab() {
-    window.open(debuggerUrl || getDebuggerUrl(), "_blank")?.focus();
+    const extensionUri = getExtensionUri();
+    const url = `${DEBUGGER_EDITOR_BASE_URL}/editor?extension=${encodeURIComponent(extensionUri)}`;
+    window.open(url, "_blank")?.focus();
   }
 
   function openModal(id) {
@@ -315,7 +323,7 @@
           <input value={debuggerExtensionUri} readonly />
         </label>
         <p class="debugger-note">
-          Debugger is powered by editor.02engine.org and auto-loads the current extension code.
+          Iframe uses 02Engine embed mode; click "Open in New Tab" for full editor mode.
         </p>
         <iframe title="Debugger Runtime" src={debuggerUrl} />
       </div>
