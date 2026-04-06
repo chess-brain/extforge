@@ -21,6 +21,7 @@
 
   import Compiler from "../resources/compiler";
 
+  import { assets } from '$app/paths';
   import NavigationBar from "$lib/NavigationBar/NavigationBar.svelte";
   import NavigationButton from "$lib/NavigationBar/Button.svelte";
   import NavigationDivider from "$lib/NavigationBar/Divider.svelte";
@@ -207,19 +208,19 @@
 </head>
 
 <NavigationBar>
-  <NavigationButton icon="/icon.svg" on:click={() => {
+  <NavigationButton icon={`${assets}/icon.svg`} on:click={() => {
     localConfig.dark = !localConfig.dark;
     updateTheme()
   }}></NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon="/icon.svg" on:click={downloadProject}>
+  <NavigationButton icon={`${assets}/icon.svg`} on:click={downloadProject}>
     Save
   </NavigationButton>
-  <NavigationButton icon="/icon.svg" on:click={loadProject}>
+  <NavigationButton icon={`${assets}/icon.svg`} on:click={loadProject}>
     Load
   </NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon="/icon.svg" on:click={() => openModal("experiments")}>
+  <NavigationButton icon={`${assets}/icon.svg`} on:click={() => openModal("experiments")}>
     Experiments
   </NavigationButton>
   <NavigationDivider />

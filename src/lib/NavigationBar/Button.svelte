@@ -1,7 +1,5 @@
 <script>
     import { createEventDispatcher } from "svelte";
-
-    import NavIconUnknown from "$lib/images/nav/unknown.svg";
     /** @type {string?} */
     export let icon = null
 

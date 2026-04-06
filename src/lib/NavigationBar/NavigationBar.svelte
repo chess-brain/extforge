@@ -1,6 +1,10 @@
+<script>
+    import { assets } from '$app/paths';
+</script>
+
 <div class="nav">
     <img
-        src="/icon.svg"
+        src={`${assets}/icon.svg`}
         alt="Logo"
         class="logo-margin"
         style="height: 40px;"
