@@ -1,5 +1,5 @@
 import javascriptGenerator from '../javascriptGenerator';
-import { registerBlock, registerMutator } from '../register';
+import { registerBlock, registerMutator, registerExtension } from '../register';
 import Blockly from 'blockly/core';
 
 const categoryPrefix = 'strings_';
@@ -174,8 +174,7 @@ function register() {
         const code = `(${TEXT}.substring(${FROM}, ${TO}))`;
         return [`${code}`, 0];
     })
-    Blockly.Extensions.unregister(`${categoryPrefix}substring_extension`)
-    Blockly.Extensions.register(`${categoryPrefix}substring_extension`, function() {
+    registerExtension(`${categoryPrefix}substring_extension`, function() {
         this.setOnChange(function() {
             const FROM = this.getFieldInput('FROM').getTargetField()
             const TO = this.getFieldInput('TO').getTargetField()

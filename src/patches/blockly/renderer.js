@@ -186,6 +186,13 @@ class Renderer extends Blockly.zelos.Renderer {
 }
 
 export default (Blockly) => {
-    Blockly.blockRendering.unregister('custom_renderer') //weird bug
+    if (
+        Blockly.registry &&
+        Blockly.registry.Type &&
+        Blockly.registry.hasItem &&
+        Blockly.registry.hasItem(Blockly.registry.Type.RENDERER, 'custom_renderer')
+    ) {
+        Blockly.blockRendering.unregister('custom_renderer')
+    }
     Blockly.blockRendering.register('custom_renderer', Renderer)
 };

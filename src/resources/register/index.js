@@ -35,6 +35,15 @@ export function registerBlock(blockName, jsonData, compileFunction) {
 }
 
 export function registerMutator(mutatorName, ...args) {
-    Blockly.Extensions.unregister(mutatorName)
+    if (Blockly.Extensions.isRegistered && Blockly.Extensions.isRegistered(mutatorName)) {
+        Blockly.Extensions.unregister(mutatorName)
+    }
     Blockly.Extensions.registerMutator(mutatorName, ...args);
+}
+
+export function registerExtension(extensionName, callback) {
+    if (Blockly.Extensions.isRegistered && Blockly.Extensions.isRegistered(extensionName)) {
+        Blockly.Extensions.unregister(extensionName);
+    }
+    Blockly.Extensions.register(extensionName, callback);
 }

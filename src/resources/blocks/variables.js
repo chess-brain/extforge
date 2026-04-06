@@ -1,5 +1,5 @@
 import javascriptGenerator from '../javascriptGenerator';
-import { registerBlock } from '../register';
+import { registerBlock, registerExtension } from '../register';
 import Blockly from 'blockly/core';
 import util from '../util';
 
@@ -56,8 +56,7 @@ function register() {
         return `${code}\n`;
     })
 
-    Blockly.Extensions.unregister(`${categoryPrefix}get_extension`)
-    Blockly.Extensions.register(`${categoryPrefix}get_extension`, function() {
+    registerExtension(`${categoryPrefix}get_extension`, function() {
         this.setOnChange(function() {
             const NAME = this.getField('NAME')
             const variable = window && window.variables && window.variables[NAME.getValue()]
@@ -69,8 +68,7 @@ function register() {
         })
     })
 
-    Blockly.Extensions.unregister(`${categoryPrefix}set_extension`)
-    Blockly.Extensions.register(`${categoryPrefix}set_extension`, function() {
+    registerExtension(`${categoryPrefix}set_extension`, function() {
         this.setOnChange(function() {
             const NAME = this.getField('NAME')
             const variable = window && window.variables && window.variables[NAME.getValue()]

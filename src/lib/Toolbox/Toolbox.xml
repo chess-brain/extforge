@@ -195,13 +195,13 @@
     <category name="Music" colour="#c4c">
         <block type="music_tone">
             <value name="FREQUENCY">
-                <shadow type="math_number">
-                    <field name="INPUT">440</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">440</field>
                 </shadow>
             </value>
             <value name="DURATION">
-                <shadow type="math_number">
-                    <field name="INPUT">200</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">200</field>
                 </shadow>
             </value>
         </block>
@@ -209,8 +209,8 @@
         <sep gap="48"></sep>
         <block type="music_setvolume">
             <value name="VOLUME">
-                <shadow type="math_number">
-                    <field name="INPUT">50</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">50</field>
                 </shadow>
             </value>
         </block>
@@ -218,23 +218,23 @@
         <sep gap="48"></sep>
         <block type="music_settempo">
             <value name="BPM">
-                <shadow type="math_number">
-                    <field name="INPUT">120</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">120</field>
                 </shadow>
             </value>
         </block>
         <block type="music_tempo" />
         <block type="music_note">
             <value name="BEATS">
-                <shadow type="math_number">
-                    <field name="INPUT">1</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">1</field>
                 </shadow>
             </value>
         </block>
         <block type="music_rest">
             <value name="BEATS">
-                <shadow type="math_number">
-                    <field name="INPUT">1</field>
+                <shadow type="generic_number">
+                    <field name="NUMBER">1</field>
                 </shadow>
             </value>
         </block>
