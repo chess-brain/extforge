@@ -540,6 +540,81 @@ function register() {
         const code = `vm.runtime.ext_scratch3_operators._random(${X}, ${Y})`;
         return [`${code}`, 0];
     })
+
+    registerBlock(`${categoryPrefix}fn`, {
+        message0: '%1 of %2',
+        args0: [
+            {
+                "type": "field_dropdown",
+                "name": "FN",
+                "options": [
+                    ["abs", "abs"],
+                    ["sqrt", "sqrt"],
+                    ["sin", "sin"],
+                    ["cos", "cos"],
+                    ["tan", "tan"],
+                    ["asin", "asin"],
+                    ["acos", "acos"],
+                    ["atan", "atan"],
+                    ["floor", "floor"],
+                    ["ceil", "ceil"],
+                    ["round", "round"],
+                    ["exp", "exp"],
+                    ["ln", "log"],
+                    ["log10", "log10"]
+                ]
+            },
+            {
+                "type": "field_number",
+                "name": "X",
+                "check": "Number",
+                "value": 1,
+                "acceptsBlocks": true
+            }
+        ],
+        output: "Number",
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const FN = block.getFieldValue("FN")
+        const X = javascriptGenerator.valueToCode(block, 'X');
+        return [`Math.${FN}(${X})`, 0];
+    })
+
+    registerBlock(`${categoryPrefix}clamp`, {
+        message0: 'clamp %1 between %2 and %3',
+        args0: [
+            {
+                "type": "field_number",
+                "name": "X",
+                "check": "Number",
+                "value": 0,
+                "acceptsBlocks": true
+            },
+            {
+                "type": "field_number",
+                "name": "MIN",
+                "check": "Number",
+                "value": 0,
+                "acceptsBlocks": true
+            },
+            {
+                "type": "field_number",
+                "name": "MAX",
+                "check": "Number",
+                "value": 100,
+                "acceptsBlocks": true
+            }
+        ],
+        output: "Number",
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const X = javascriptGenerator.valueToCode(block, 'X');
+        const MIN = javascriptGenerator.valueToCode(block, 'MIN');
+        const MAX = javascriptGenerator.valueToCode(block, 'MAX');
+        return [`Math.min(Math.max(${X}, ${MIN}), ${MAX})`, 0];
+    })
 }
 
 export default register;

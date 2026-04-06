@@ -313,6 +313,89 @@ function register() {
         return [`${code}`, 0];
     })
 
+    registerBlock(`${categoryPrefix}trim`, {
+        message0: 'trim %1',
+        args0: [
+            {
+                "type": "field_input",
+                "name": "TEXT",
+                "check": "String",
+                "text": "  hello  ",
+                "acceptsBlocks": true
+            }
+        ],
+        output: "String",
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const TEXT = javascriptGenerator.valueToCode(block, 'TEXT');
+        return [`(${TEXT}.trim())`, 0];
+    })
+
+    registerBlock(`${categoryPrefix}case`, {
+        message0: '%1 case of %2',
+        args0: [
+            {
+                "type": "field_dropdown",
+                "name": "MODE",
+                "options": [
+                    ["upper", "upper"],
+                    ["lower", "lower"]
+                ]
+            },
+            {
+                "type": "field_input",
+                "name": "TEXT",
+                "check": "String",
+                "text": "Hello",
+                "acceptsBlocks": true
+            }
+        ],
+        output: "String",
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const MODE = block.getFieldValue("MODE")
+        const TEXT = javascriptGenerator.valueToCode(block, 'TEXT');
+        return [MODE === "upper" ? `(${TEXT}.toUpperCase())` : `(${TEXT}.toLowerCase())`, 0];
+    })
+
+    registerBlock(`${categoryPrefix}match`, {
+        message0: '%1 matches regex %2 flags %3',
+        args0: [
+            {
+                "type": "field_input",
+                "name": "TEXT",
+                "check": "String",
+                "text": "abc123",
+                "acceptsBlocks": true
+            },
+            {
+                "type": "field_input",
+                "name": "PATTERN",
+                "check": "String",
+                "text": "^abc",
+                "acceptsBlocks": true
+            },
+            {
+                "type": "field_input",
+                "name": "FLAGS",
+                "check": "String",
+                "text": "i",
+                "acceptsBlocks": true
+            }
+        ],
+        output: "Boolean",
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const TEXT = javascriptGenerator.valueToCode(block, 'TEXT');
+        const PATTERN = javascriptGenerator.valueToCode(block, 'PATTERN');
+        const FLAGS = javascriptGenerator.valueToCode(block, 'FLAGS');
+        const code = `(new RegExp(${PATTERN}, ${FLAGS}).test(${TEXT}))`;
+        return [code, 0];
+    })
+
     const strings_join_mutator = {
         items_: 0,
 

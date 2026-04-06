@@ -67,6 +67,77 @@ function register() {
     }, () => {
         return ['ExtForge.Music.getVolume()', 0];
     });
+
+    registerBlock(`${categoryPrefix}settempo`, {
+        message0: 'set tempo to %1 bpm',
+        args0: [
+            {
+                type: 'input_value',
+                name: 'BPM',
+                check: 'Number'
+            }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const BPM = javascriptGenerator.valueToCode(block, 'BPM') || '120';
+        return `ExtForge.Music.setTempo(${BPM});\n`;
+    });
+
+    registerBlock(`${categoryPrefix}tempo`, {
+        message0: 'tempo (bpm)',
+        args0: [],
+        output: 'Number',
+        inputsInline: true,
+        colour: categoryColor
+    }, () => {
+        return ['ExtForge.Music.getTempo()', 0];
+    });
+
+    registerBlock(`${categoryPrefix}note`, {
+        message0: 'play note %1 for %2 beats',
+        args0: [
+            {
+                type: 'field_input',
+                name: 'NOTE',
+                text: 'C4',
+                acceptsBlocks: true
+            },
+            {
+                type: 'input_value',
+                name: 'BEATS',
+                check: 'Number'
+            }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const NOTE = javascriptGenerator.valueToCode(block, 'NOTE') || '"C4"';
+        const BEATS = javascriptGenerator.valueToCode(block, 'BEATS') || '1';
+        return `await ExtForge.Music.playNote(${NOTE}, ${BEATS});\n`;
+    });
+
+    registerBlock(`${categoryPrefix}rest`, {
+        message0: 'rest for %1 beats',
+        args0: [
+            {
+                type: 'input_value',
+                name: 'BEATS',
+                check: 'Number'
+            }
+        ],
+        previousStatement: null,
+        nextStatement: null,
+        inputsInline: true,
+        colour: categoryColor
+    }, (block) => {
+        const BEATS = javascriptGenerator.valueToCode(block, 'BEATS') || '1';
+        return `await ExtForge.Music.rest(${BEATS});\n`;
+    });
 }
 
 export default register;

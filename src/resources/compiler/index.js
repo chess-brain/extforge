@@ -57,6 +57,20 @@ const ExtForge = {
             [...list][index] = value;
             return list;
         },
+        uniqueList: (list) => {
+            return [...new Set(list ?? [])];
+        },
+        sortList: (list, mode) => {
+            const source = [...(list ?? [])];
+            if (mode === "num_asc") return source.sort((a, b) => Number(a) - Number(b));
+            if (mode === "num_desc") return source.sort((a, b) => Number(b) - Number(a));
+            if (mode === "text_desc") return source.sort((a, b) => String(b).localeCompare(String(a)));
+            return source.sort((a, b) => String(a).localeCompare(String(b)));
+        },
+        filterContains: (list, text) => {
+            const query = String(text ?? "").toLowerCase();
+            return (list ?? []).filter(v => String(v).toLowerCase().includes(query));
+        },
         lists_foreach: {
             index: [0],
             value: [null],
@@ -72,6 +86,7 @@ const ExtForge = {
         this.masterGain = null;
         this.activeNodes = new Set();
         this.volume = 0.5;
+        this.bpm = 120;
 
         this.ensureContext = () => {
             if (!this.context) {
@@ -131,6 +146,35 @@ const ExtForge = {
                 } catch {}
             }
             this.activeNodes.clear();
+        };
+
+        this.noteToFrequency = (note) => {
+            const match = String(note ?? "A4").trim().toUpperCase().match(/^([A-G])([#B]?)(-?\d)$/);
+            if (!match) return 440;
+            const [, pitch, accidental, octaveRaw] = match;
+            const octave = Number(octaveRaw);
+            const table = { C: -9, D: -7, E: -5, F: -4, G: -2, A: 0, B: 2 };
+            let semitone = table[pitch] ?? 0;
+            if (accidental === "#") semitone += 1;
+            if (accidental === "B") semitone -= 1;
+            semitone += (octave - 4) * 12;
+            return 440 * (2 ** (semitone / 12));
+        };
+
+        this.setTempo = (bpm) => {
+            this.bpm = Math.max(20, Math.min(320, Number(bpm) || 120));
+        };
+        this.getTempo = () => this.bpm;
+
+        this.playNote = async (note, beats) => {
+            const durationMs = (60000 / this.bpm) * Math.max(0, Number(beats) || 1);
+            const frequency = this.noteToFrequency(note);
+            await this.playTone(frequency, durationMs);
+        };
+
+        this.rest = async (beats) => {
+            const durationMs = (60000 / this.bpm) * Math.max(0, Number(beats) || 1);
+            await new Promise(resolve => setTimeout(resolve, durationMs));
         };
     }
 }

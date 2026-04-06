@@ -222,6 +222,76 @@ function register() {
         return [`${code}`, 0];
     })
 
+    registerBlock(`${categoryPrefix}unique`, {
+        message0: 'unique values of %1',
+        args0: [
+            {
+                "type": "input_value",
+                "name": "INPUT",
+                "check": "List"
+            }
+        ],
+        inputsInline: true,
+        output: "List",
+        colour: categoryColor,
+    }, (block) => {
+        const INPUT = javascriptGenerator.valueToCode(block, 'INPUT') || '[]'
+        return [`ExtForge.Utils.uniqueList(${INPUT})`, 0];
+    })
+
+    registerBlock(`${categoryPrefix}sort`, {
+        message0: 'sort %1 mode %2',
+        args0: [
+            {
+                "type": "input_value",
+                "name": "INPUT",
+                "check": "List"
+            },
+            {
+                "type": "field_dropdown",
+                "name": "MODE",
+                "options": [
+                    ["text asc", "text_asc"],
+                    ["text desc", "text_desc"],
+                    ["num asc", "num_asc"],
+                    ["num desc", "num_desc"]
+                ]
+            }
+        ],
+        inputsInline: true,
+        output: "List",
+        colour: categoryColor,
+    }, (block) => {
+        const INPUT = javascriptGenerator.valueToCode(block, 'INPUT') || '[]'
+        const MODE = block.getFieldValue("MODE")
+        return [`ExtForge.Utils.sortList(${INPUT}, "${MODE}")`, 0];
+    })
+
+    registerBlock(`${categoryPrefix}filtercontains`, {
+        message0: 'filter %1 contains %2',
+        args0: [
+            {
+                "type": "input_value",
+                "name": "INPUT",
+                "check": "List"
+            },
+            {
+                "type": "field_input",
+                "name": "TEXT",
+                "check": "String",
+                "text": "a",
+                "acceptsBlocks": true
+            }
+        ],
+        inputsInline: true,
+        output: "List",
+        colour: categoryColor,
+    }, (block) => {
+        const INPUT = javascriptGenerator.valueToCode(block, 'INPUT') || '[]'
+        const TEXT = javascriptGenerator.valueToCode(block, 'TEXT') || '""'
+        return [`ExtForge.Utils.filterContains(${INPUT}, ${TEXT})`, 0];
+    })
+
     registerBlock(`${categoryPrefix}foreach`, {
         message0: 'for each %1 %2 in %3 %4 %5',
         args0: [

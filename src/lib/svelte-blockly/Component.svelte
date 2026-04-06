@@ -42,6 +42,8 @@
         targets: iconTargets,
         browser: iconBrowser,
         music: iconMusic,
+        search: iconBrowser,
+        favorites: iconBlocks,
     };
 
     function normalizeCategoryName(name) {
@@ -220,8 +222,8 @@
         position: absolute;
         top: 4px;
         left: 8px;
-        width: 14px;
-        height: 14px;
+        width: 22px;
+        height: 22px;
         border-radius: 5px;
         box-sizing: border-box;
         border: none;
@@ -252,8 +254,8 @@
     }
     :global(.blocklyTreeSelected .categoryBubble::after) {
         left: 10px;
-        width: 14px;
-        height: 14px;
+        width: 22px;
+        height: 22px;
         opacity: 1;
     }
     :global(.blocklyToolboxCategory:hover:not(.blocklyTreeSelected)) {

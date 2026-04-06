@@ -49,6 +49,8 @@
         <block type="math_log" />
         <sep gap="48"></sep>
         <block type="math_random" />
+        <block type="math_fn" />
+        <block type="math_clamp" />
         <sep gap="48"></sep>
         <block type="math_const" />
         <sep gap="48"></sep>
@@ -80,6 +82,9 @@
         <block type="strings_contains" />
         <block type="strings_amountof" />
         <block type="strings_replace" />
+        <block type="strings_trim" />
+        <block type="strings_case" />
+        <block type="strings_match" />
         <sep gap="48"></sep>
         <block type="strings_log" />
     </category>
@@ -116,6 +121,9 @@
         <block type="lists_set" />
         <block type="lists_join" />
         <block type="lists_concat" />
+        <block type="lists_unique" />
+        <block type="lists_sort" />
+        <block type="lists_filtercontains" />
         <sep gap="48"></sep>
         <block type="lists_foreach">
             <value name="INDEX">
@@ -129,8 +137,14 @@
     <category name="Lambdas" colour="#d46">
 
     </category>
+    <category name="Search" colour="#5ab" custom="search">
+        <!-- resources/categories/meta.js -->
+    </category>
     <category name="Blocks" colour="#b6f" custom="blocks">
         <!-- resources/categories/blocks.js -->
+    </category>
+    <category name="Favorites" colour="#ba6" custom="favorites">
+        <!-- resources/categories/meta.js -->
     </category>
 
     <sep />
@@ -201,5 +215,28 @@
             </value>
         </block>
         <block type="music_volume" />
+        <sep gap="48"></sep>
+        <block type="music_settempo">
+            <value name="BPM">
+                <shadow type="math_number">
+                    <field name="INPUT">120</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="music_tempo" />
+        <block type="music_note">
+            <value name="BEATS">
+                <shadow type="math_number">
+                    <field name="INPUT">1</field>
+                </shadow>
+            </value>
+        </block>
+        <block type="music_rest">
+            <value name="BEATS">
+                <shadow type="math_number">
+                    <field name="INPUT">1</field>
+                </shadow>
+            </value>
+        </block>
     </category>
 </xml>

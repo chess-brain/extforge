@@ -102,6 +102,13 @@
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
   let debuggerRefreshTimer;
+  let copiedExtensionUrl = false;
+  let loadError = "";
+  let lastAutoSaveAt = "";
+  let recentFiles: Array<{ name: string; time: string }> = [];
+  const DRAFT_STORAGE_KEY = "extforge_draft_v1";
+  const DEBUGGER_CONFIG_STORAGE_KEY = "extforge_debugger_config_v1";
+  const RECENT_FILES_STORAGE_KEY = "extforge_recent_files_v1";
   let properties = {
     name: "Extension",
     id: "extensionID",
@@ -113,6 +120,7 @@
     if (autoRefreshDebugger) {
       refreshDebugger(true);
     }
+    saveDraft(true);
   }
 
   function toBase64(value) {
@@ -146,6 +154,84 @@
     update();
   }
 
+  async function copyExtensionUrl() {
+    const value = debuggerExtensionUri || getExtensionUri();
+    try {
+      await navigator.clipboard.writeText(value);
+      copiedExtensionUrl = true;
+      setTimeout(() => {
+        copiedExtensionUrl = false;
+      }, 1200);
+    } catch {}
+  }
+
+  function readRecentFiles() {
+    try {
+      recentFiles = JSON.parse(localStorage.getItem(RECENT_FILES_STORAGE_KEY) || "[]");
+    } catch {
+      recentFiles = [];
+    }
+  }
+
+  function pushRecentFile(name) {
+    const now = new Date().toLocaleString();
+    const next = [{ name, time: now }, ...recentFiles.filter((v) => v.name !== name)].slice(0, 8);
+    recentFiles = next;
+    localStorage.setItem(RECENT_FILES_STORAGE_KEY, JSON.stringify(next));
+  }
+
+  function serializeProjectData() {
+    return {
+      blockly: Blockly.serialization.workspaces.save(workspace),
+      properties: properties,
+      variables: window.variables || {},
+      blocks: window.blocks || {}
+    };
+  }
+
+  function applyProjectData(projectJson) {
+    properties.name = projectJson?.properties?.name ?? "Extension";
+    properties.id = projectJson?.properties?.id ?? "extensionID";
+    properties.color = projectJson?.properties?.color ?? "#6FFF98";
+
+    window.variables = projectJson?.variables ?? {};
+    window.blocks = projectJson?.blocks ?? {};
+
+    Blockly.serialization.workspaces.load(projectJson?.blockly ?? {}, workspace);
+    updateGeneratedCode();
+    refreshDebugger();
+  }
+
+  function saveDraft(silent = false) {
+    if (!workspace) return;
+    try {
+      const payload = {
+        updatedAt: Date.now(),
+        data: serializeProjectData()
+      };
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(payload));
+      lastAutoSaveAt = new Date(payload.updatedAt).toLocaleString();
+      if (!silent) {
+        alert("Draft saved.");
+      }
+    } catch {}
+  }
+
+  function restoreDraft(silent = false) {
+    try {
+      const raw = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (!raw) {
+        if (!silent) alert("No draft found.");
+        return;
+      }
+      const payload = JSON.parse(raw);
+      applyProjectData(payload.data || {});
+      lastAutoSaveAt = payload.updatedAt ? new Date(payload.updatedAt).toLocaleString() : "";
+    } catch {
+      if (!silent) alert("Draft restore failed.");
+    }
+  }
+
   function openDebuggerInNewTab() {
     const extensionUri = getExtensionUri();
     const url = `${DEBUGGER_EDITOR_BASE_URL}/editor?extension=${encodeURIComponent(extensionUri)}`;
@@ -160,14 +246,7 @@
     let filteredProjectName = properties.id.replace(/[^a-z0-9\-]+/gim, "_");
     let fileName = filteredProjectName + ".exf";
 
-    let projectData = Blockly.serialization.workspaces.save(workspace);
-
-    projectData = {
-      blockly: projectData,
-      properties: properties,
-      variables: window.variables || {},
-      blocks: window.blocks || {}
-    };
+    let projectData = serializeProjectData();
 
     // zip
     const zip = new JSZip();
@@ -184,34 +263,31 @@
     // download
     zip.generateAsync({ type: "blob" }).then((blob) => {
       FileSaver.saveAs(blob, fileName);
+      pushRecentFile(fileName);
     });
   }
 
   function loadProject() {
+    loadError = "";
     fileDialog({ accept: ".exf" }).then((files) => {
       if (!files) return;
       const file = files[0];
-
-      const projectNameIdx = file.name.lastIndexOf(".exf");
-
-      JSZip.loadAsync(file.arrayBuffer()).then(async (zip) => {
-        const dataFolder = zip.folder("data");
-        const projectJsonString = await dataFolder
-          .file("project.json")
-          .async("string");
-        const projectJson = JSON.parse(projectJsonString);
-
-        properties.name = projectJson.properties.name ?? "Extension";
-        properties.id = projectJson.properties.id ?? "extensionID";
-        properties.color = projectJson.properties.color ?? "#6FFF98";
-
-        window.variables = projectJson.variables ?? {};
-        window.blocks = projectJson.blocks ?? {};
-
-        Blockly.serialization.workspaces.load(projectJson.blockly, workspace);
-
-        updateGeneratedCode();
-      });
+      JSZip.loadAsync(file.arrayBuffer())
+        .then(async (zip) => {
+          const dataFolder = zip.folder("data");
+          const projectFile = dataFolder?.file("project.json");
+          if (!projectFile) {
+            throw new Error("Missing data/project.json");
+          }
+          const projectJsonString = await projectFile.async("string");
+          const projectJson = JSON.parse(projectJsonString);
+          applyProjectData(projectJson);
+          pushRecentFile(file.name);
+        })
+        .catch((error) => {
+          loadError = `Import failed: ${error?.message || "Unknown error"}`;
+          alert(loadError);
+        });
     });
   }
 
@@ -225,6 +301,13 @@
 
     registerCategories(workspace);
     registerButtons(workspace);
+
+    try {
+      const debuggerConfig = JSON.parse(localStorage.getItem(DEBUGGER_CONFIG_STORAGE_KEY) || "{}");
+      autoRefreshDebugger = debuggerConfig.autoRefreshDebugger ?? true;
+    } catch {}
+    readRecentFiles();
+    restoreDraft(true);
     updateGeneratedCode();
     refreshDebugger();
 
@@ -252,6 +335,9 @@
 
     addEventListener('unload', event => {
       localStorage.setItem('localConfig', JSON.stringify(localConfig))
+      localStorage.setItem(DEBUGGER_CONFIG_STORAGE_KEY, JSON.stringify({
+        autoRefreshDebugger
+      }))
     })
   });
 </script>
@@ -267,6 +353,12 @@
   </NavigationButton>
   <NavigationButton icon={NavIconLoad} on:click={loadProject}>
     Load
+  </NavigationButton>
+  <NavigationButton on:click={() => saveDraft(false)}>
+    Save Draft
+  </NavigationButton>
+  <NavigationButton on:click={() => restoreDraft(false)}>
+    Restore Draft
   </NavigationButton>
   <NavigationDivider />
   <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
@@ -317,8 +409,12 @@
             Auto refresh
           </label>
           <button on:click={() => refreshDebugger()}>Refresh</button>
+          <button on:click={copyExtensionUrl}>{copiedExtensionUrl ? "Copied" : "Copy Extension URL"}</button>
           <button on:click={openDebuggerInNewTab}>Open in New Tab</button>
         </div>
+        {#if loadError}
+          <p class="debugger-error">{loadError}</p>
+        {/if}
         <p class="debugger-status">
           Imported Extension: <b>{properties.name}</b> (`{properties.id}`)
         </p>
@@ -329,6 +425,17 @@
         <p class="debugger-note">
           Iframe uses 02Engine embed mode; click "Open in New Tab" for full editor mode.
         </p>
+        <p class="debugger-note">Last draft auto-save: {lastAutoSaveAt || "Not yet"}</p>
+        {#if recentFiles.length > 0}
+          <div class="recent-files">
+            <span>Recent Files:</span>
+            <ul>
+              {#each recentFiles as file}
+                <li>{file.name} - {file.time}</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
         <iframe title="Debugger Runtime" src={debuggerUrl} />
       </div>
     </Tab>
@@ -432,6 +539,32 @@
     font-size: 0.875rem;
   }
 
+  .debugger-error {
+    margin: 0;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.45rem;
+    background: #ff4f4f22;
+    color: #9f1515;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .recent-files {
+    font-size: 0.82rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 0.45rem;
+    background: #00000008;
+  }
+
+  .recent-files ul {
+    margin: 0.25rem 0 0;
+    padding-left: 1rem;
+  }
+
+  .recent-files li {
+    line-height: 1.35;
+  }
+
   .debugger-extension-uri {
     display: flex;
     flex-direction: column;
@@ -472,6 +605,13 @@
   :global(.dark) .debugger-extension-uri input {
     background: #111;
     border-color: #fff2;
+  }
+  :global(.dark) .debugger-error {
+    background: #ff4f4f2e;
+    color: #ffc0c0;
+  }
+  :global(.dark) .recent-files {
+    background: #ffffff08;
   }
 
   :global(.dark) .debugger-toolbar label input {
