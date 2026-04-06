@@ -97,7 +97,6 @@
   let compiler = new Compiler();
   let code;
   const DEBUGGER_EDITOR_BASE_URL = "https://editor.02engine.org";
-  const DEBUGGER_PROJECT_URL = "https://scratch.mit.edu/projects/60917032";
   let debuggerUrl = "";
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
@@ -132,18 +131,15 @@
   }
 
   function getDebuggerUrl() {
-    const params = new URLSearchParams({
-      project_url: DEBUGGER_PROJECT_URL,
-      "settings-button": "1"
-    });
-    return `${DEBUGGER_EDITOR_BASE_URL}/embed?${params.toString()}`;
+    // Keep iframe URL short to avoid oversized Referrer and blocked script loads.
+    return `${DEBUGGER_EDITOR_BASE_URL}/editor?embedded=1`;
   }
 
   function refreshDebugger(debounce = false) {
     clearTimeout(debuggerRefreshTimer);
     const update = () => {
       debuggerExtensionUri = getExtensionUri();
-      debuggerUrl = getDebuggerUrl();
+      debuggerUrl = `${getDebuggerUrl()}&t=${Date.now()}`;
     };
     if (debounce) {
       debuggerRefreshTimer = setTimeout(update, 400);
@@ -421,7 +417,7 @@
           <input value={debuggerExtensionUri} readonly />
         </label>
         <p class="debugger-note">
-          Iframe uses stable embed mode. Click "Open in New Tab" for full editor with extension import.
+          Embedded panel now loads the editor view. Use "Open in New Tab" to load current extension code into editor.
         </p>
         <p class="debugger-note">Last draft auto-save: {lastAutoSaveAt || "Not yet"}</p>
         {#if recentFiles.length > 0}
@@ -434,7 +430,7 @@
             </ul>
           </div>
         {/if}
-        <iframe title="Debugger Runtime" src={debuggerUrl} referrerpolicy="origin" />
+        <iframe title="Debugger Runtime" src={debuggerUrl} referrerpolicy="no-referrer" />
       </div>
     </Tab>
     <Tab title="Export" {activeTab} {tabs} {handleTabClick} {registerTab}>
