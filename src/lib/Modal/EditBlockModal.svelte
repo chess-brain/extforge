@@ -197,8 +197,4 @@
         width: 100%;
         box-sizing: border-box;
     }
-
-    .bottom {
-
-    }
 </style>
