@@ -21,10 +21,14 @@
 
   import Compiler from "../resources/compiler";
 
-  import { assets } from '$app/paths';
   import NavigationBar from "$lib/NavigationBar/NavigationBar.svelte";
   import NavigationButton from "$lib/NavigationBar/Button.svelte";
   import NavigationDivider from "$lib/NavigationBar/Divider.svelte";
+
+  import NavIconSave from "$lib/images/nav/save.svg";
+  import NavIconLoad from "$lib/images/nav/load.svg";
+  import NavIconExperiments from "$lib/images/nav/experiments.svg";
+  import NavIconDark from "$lib/images/nav/dark.svg";
 
   import TabManager from "$lib/TabManager/TabManager.svelte";
   import Tab from "$lib/TabManager/Tab.svelte";
@@ -203,24 +207,20 @@
   });
 </script>
 
-<head>
-  <title>CB-ExtGallary</title>
-</head>
-
 <NavigationBar>
-  <NavigationButton icon={`${assets}/dark.svg`} on:click={() => {
+  <NavigationButton icon={NavIconDark} on:click={() => {
     localConfig.dark = !localConfig.dark;
     updateTheme()
   }}></NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={`${assets}/save.svg`} on:click={downloadProject}>
+  <NavigationButton icon={NavIconSave} on:click={downloadProject}>
     Save
   </NavigationButton>
-  <NavigationButton icon={`${assets}/load.svg`} on:click={loadProject}>
+  <NavigationButton icon={NavIconLoad} on:click={loadProject}>
     Load
   </NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={`${assets}/experiments.svg`} on:click={() => openModal("experiments")}>
+  <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
     Experiments
   </NavigationButton>
   <NavigationDivider />
