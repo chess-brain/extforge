@@ -5,7 +5,7 @@
     export let properties = {
         name: "Extension",
         id: "extensionID",
-        color: "#0fbd8c"
+        color: "#6FFF98"
     }
 
     function update() {
