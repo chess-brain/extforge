@@ -5,5 +5,6 @@
 </script>
 
 <Modal id={id} title="Experiments" let:data>
-    todo: make this aaa
+    A debugger(testing) is added to the app.
+    Also if you don't know, the debugger is a tool that allows you to debug your code. 
 </Modal>
