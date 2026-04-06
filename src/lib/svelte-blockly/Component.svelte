@@ -172,14 +172,27 @@
         height: 100%;
     }
 
+    :global(.blocklyToolboxDiv) {
+        background: #f3f5f9;
+        border-right: 1px solid #d9dee8;
+        width: 172px !important;
+    }
     :global(.dark .blocklyToolboxDiv) {
-        background: #333;
+        background: #1b1f29;
+        border-right-color: #31384a;
     }
 
     :global(.blocklyToolboxCategory) {
-        width: 128px;
+        width: 100%;
         position: relative;
-        padding: 0;
+        padding: 0 8px;
+        box-sizing: border-box;
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        margin: 2px 0;
+        border-radius: 10px;
+        transition: background-color 0.15s ease;
     }
     :global(.blocklyTreeSelected) {
         background-color: initial !important;
@@ -187,31 +200,31 @@
 
     :global(.blocklyTreeLabel) {
         font-family: "Noto Sans";
-        font-weight: 500;
-        font-size: 14px;
-        margin-left: 16px;
+        font-weight: 700;
+        font-size: 13px;
+        margin-left: 22px;
         transition: 0.3s cubic-bezier(0, 0, 0.3, 1);
         z-index: 2;
-        color: #000;
+        color: #3b4453;
     }
     :global(.dark .blocklyTreeLabel) {
         color: #fff;
     }
     :global(.blocklyTreeSelected .blocklyTreeLabel) {
-        margin-left: 4px;
+        margin-left: 20px;
         font-weight: 700;
-        color: #000b;
+        color: #fff;
     }
 
     :global(.categoryBubble) {
         position: absolute;
-        top: 6px;
-        left: 4px;
-        width: 12px;
-        height: 12px;
-        border-radius: 4px;
+        top: 4px;
+        left: 8px;
+        width: 14px;
+        height: 14px;
+        border-radius: 5px;
         box-sizing: border-box;
-        border: 1px solid #0008;
+        border: none;
         transition: 0.3s cubic-bezier(0, 0, 0.3, 1);
         z-index: 1;
     }
@@ -219,9 +232,9 @@
         content: "";
         position: absolute;
         top: 50%;
-        left: 2px;
-        width: 8px;
-        height: 8px;
+        left: 1px;
+        width: 12px;
+        height: 12px;
         transform: translateY(-50%);
         background-image: var(--category-icon);
         background-repeat: no-repeat;
@@ -233,17 +246,18 @@
     :global(.blocklyTreeSelected .categoryBubble) {
         top: 0;
         left: 0;
-        width: 128px;
-        height: 24px;
-        border-radius: 0;
-        border-color: #0004;
-        border-left: none;
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
     }
     :global(.blocklyTreeSelected .categoryBubble::after) {
-        left: 6px;
-        width: 12px;
-        height: 12px;
+        left: 10px;
+        width: 14px;
+        height: 14px;
         opacity: 1;
+    }
+    :global(.blocklyToolboxCategory:hover:not(.blocklyTreeSelected)) {
+        background: #e9edf4;
     }
 
     :global(.blocklyFlyoutButtonBackground) {
@@ -295,6 +309,9 @@
 
     :global(.dark .blocklyFlyoutBackground) {
         fill: #222;
+    }
+    :global(.dark .blocklyToolboxCategory:hover:not(.blocklyTreeSelected)) {
+        background: #2a3040;
     }
 
     :global(.dark .blocklyFlyoutLabelText) {

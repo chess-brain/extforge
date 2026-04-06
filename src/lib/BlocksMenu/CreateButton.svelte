@@ -3,7 +3,7 @@
 </script>
 
 <button on:click>
-    <img src={`${assets}/icon.svg`} alt="" />
+    <img src={`${assets}/plus.svg`} alt="" />
 </button>
 
 <style>
