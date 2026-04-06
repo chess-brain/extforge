@@ -224,8 +224,11 @@
     Experiments
   </NavigationButton>
   <NavigationDivider />
-  <NavigationButton on:click={() => window.open("https://discord.gg/NeYug9v2hq", '_blank')}>
-    Discord
+  <NavigationButton on:click={() => window.open("https://discord.gg/5EZ2Ngreys", '_blank')}>
+    Discord 
+  </NavigationButton>
+  <NavigationButton on:click={() => window.open("https://qm.qq.com/q/xWWYbY59Ys", '_blank')}>
+    QQ 
   </NavigationButton>
 </NavigationBar>
 <div id="main">

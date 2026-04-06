@@ -82,7 +82,7 @@ class Compiler {
         const headerCode = [
             `/*`,
             `   Created with CB-ExtGallary`,
-            `   https://jwklong.github.io/extforge`,
+            `   https://chessbrain.qzz.io/CB-ExtGallary`,
             `*/`,
             `(async function (Scratch) {`,
             `const variables = {};`,
