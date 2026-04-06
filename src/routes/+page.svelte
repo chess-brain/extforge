@@ -95,13 +95,11 @@
   let workspace;
   let compiler = new Compiler();
   let code;
-  let debuggerEngine = "turbowarp";
+  const DEBUGGER_EDITOR_BASE_URL = "https://editor.02engine.org";
   let debuggerUrl = "";
   let debuggerExtensionUri = "";
   let autoRefreshDebugger = true;
   let debuggerRefreshTimer;
-  const TURBOWARP_EMBED_PROJECT_ID = "15832807";
-  const SCRATCH_EMBED_PROJECT_ID = "10128407";
   let properties = {
     name: "Extension",
     id: "extensionID",
@@ -125,15 +123,7 @@
 
   function getDebuggerUrl() {
     const extensionUri = getExtensionUri();
-    if (debuggerEngine === "scratch") {
-      return `https://scratch.mit.edu/projects/${SCRATCH_EMBED_PROJECT_ID}/embed`;
-    }
-    const params = new URLSearchParams({
-      autoplay: "1",
-      "settings-button": "1",
-      extension: extensionUri
-    });
-    return `https://turbowarp.org/${TURBOWARP_EMBED_PROJECT_ID}/embed?${params.toString()}`;
+    return `${DEBUGGER_EDITOR_BASE_URL}/editor?extension=${encodeURIComponent(extensionUri)}`;
   }
 
   function refreshDebugger(debounce = false) {
@@ -150,11 +140,7 @@
   }
 
   function openDebuggerInNewTab() {
-    const extensionUri = getExtensionUri();
-    const url = debuggerEngine === "scratch"
-      ? "https://scratch.mit.edu/projects/editor/"
-      : "https://turbowarp.org/editor?extension=" + encodeURIComponent(extensionUri);
-    window.open(url, "_blank")?.focus();
+    window.open(debuggerUrl || getDebuggerUrl(), "_blank")?.focus();
   }
 
   function openModal(id) {
@@ -311,11 +297,8 @@
       <div class="debugger">
         <div class="debugger-toolbar">
           <label>
-            Runtime
-            <select bind:value={debuggerEngine} on:change={() => refreshDebugger()}>
-              <option value="turbowarp">TurboWarp</option>
-              <option value="scratch">Scratch</option>
-            </select>
+            Source
+            <input value={DEBUGGER_EDITOR_BASE_URL} readonly />
           </label>
           <label class="checkbox">
             <input type="checkbox" bind:checked={autoRefreshDebugger} />
@@ -331,15 +314,9 @@
           Extension URL
           <input value={debuggerExtensionUri} readonly />
         </label>
-        {#if debuggerEngine === "scratch"}
-          <p class="debugger-note">
-            Scratch iframe uses the public player embed. Click "Open in New Tab" to use the full Scratch editor.
-          </p>
-        {:else}
-          <p class="debugger-note">
-            TurboWarp iframe uses the embeddable player. Click "Open in New Tab" for the full editor with extension import.
-          </p>
-        {/if}
+        <p class="debugger-note">
+          Debugger is powered by editor.02engine.org and auto-loads the current extension code.
+        </p>
         <iframe title="Debugger Runtime" src={debuggerUrl} />
       </div>
     </Tab>
@@ -420,6 +397,15 @@
     font-size: 0.875rem;
   }
 
+  .debugger-toolbar label input {
+    border: 1px solid #0002;
+    border-radius: 0.35rem;
+    padding: 0.25rem 0.45rem;
+    background: #fff;
+    color: inherit;
+    min-width: 280px;
+  }
+
   .debugger-toolbar button {
     border: none;
     border-radius: 0.4rem;
@@ -472,6 +458,11 @@
   }
 
   :global(.dark) .debugger-extension-uri input {
+    background: #111;
+    border-color: #fff2;
+  }
+
+  :global(.dark) .debugger-toolbar label input {
     background: #111;
     border-color: #fff2;
   }
