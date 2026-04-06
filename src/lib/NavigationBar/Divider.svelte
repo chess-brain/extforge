@@ -2,9 +2,9 @@
 
 <style>
     .divider {
-        border-radius: 6px;
-        border: 3px dashed rgba(0, 0, 0, 0.15);
-        margin: 0.85rem 0.5rem;
-        height: calc(100% - 0.85rem);
+        border-left: 2px solid rgba(255, 255, 255, 0.3);
+        margin: 0 8px;
+        height: 2rem;
+        border-radius: 1px;
     }
 </style>

@@ -22,7 +22,6 @@
     updateGeneratedCode();
   }
   
-  // 新增：删除所有积木的功能
   function deleteAllBlocks() {
     if (!workspace) return;
     if (!confirm("Delete all blocks? This action cannot be undone.")) {
@@ -37,7 +36,6 @@
     }
   }
   
-  // 新增：展开所有积木的功能
   function expandAllBlocks() {
     if (!workspace) return;
     

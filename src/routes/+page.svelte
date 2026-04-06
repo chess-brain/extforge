@@ -2,6 +2,15 @@
   import Blockly from "blockly/core";
 
   import En from "blockly/msg/en";
+  import ZhCN from "blockly/msg/zh-hans";
+  import ZhTW from "blockly/msg/zh-hant";
+  import Fr from "blockly/msg/fr";
+  import Es from "blockly/msg/es";
+  import De from "blockly/msg/de";
+  import Ja from "blockly/msg/ja";
+  import Ar from "blockly/msg/ar";
+  import Pt from "blockly/msg/pt";
+  import Ru from "blockly/msg/ru";
   import "blockly/blocks";
   import "blockly/javascript";
 
@@ -38,17 +47,49 @@
   import ExperimentsModal from "$lib/Modal/ExperimentsModal.svelte";
   import CreateVariableModal from "$lib/Modal/CreateVariableModal.svelte";
   import EditBlockModal from "$lib/Modal/EditBlockModal.svelte";
+  import ExportModal from "$lib/Modal/ExportModal.svelte";
 
   import CodePreview from "$lib/CodePreview/CodePreview.svelte";
 
   import PropertiesPicker from "$lib/PropertiesPicker/PropertiesPicker.svelte";
-  import ExportMenu from "$lib/ExportMenu/ExportMenu.svelte";
-  import BlocksMenu from "$lib/BlocksMenu/BlocksMenu.svelte";
 
-  const en = {
+  import BlocksMenu from "$lib/BlocksMenu/BlocksMenu.svelte";
+  import "$lib/styles/form-styles.css";
+  import { setLanguage, getLanguage, initLanguage, getAvailableLanguages, addLanguageChangeListener } from "../i18n";
+  import * as i18n from "../i18n";
+  
+  // 使用函数包装t，确保每次都获取最新的语言
+  function t(key) {
+    return i18n.t(key);
+  }
+
+  // Blockly language mappings
+  const blocklyLanguages = {
+    'en-US': En,
+    'en-UK': En,
+    'en-CA': En,
+    'en-AU': En,
+    'zh-CN': ZhCN,
+    'zh-TW': ZhTW,
+    'fr': Fr,
+    'es': Es,
+    'de': De,
+    'ja': Ja,
+    'ar': Ar,
+    'pt': Pt,
+    'ru': Ru
+  };
+
+  let currentBlocklyLocale = {
     rtl: false,
     msg: {
-      ...En,
+      ...ZhCN,
+      // Add custom block translations
+      BKY_EVENTS_LOADED: '当扩展加载 %1 %2',
+      BKY_EVENTS_THREAD: '新线程 %1 %2',
+      BKY_EVENTS_REGBROADCAST: '当 %1 广播 %2 %3',
+      BKY_EVENTS_BROADCAST: '广播 %1',
+      BKY_EVENTS_BROADCASTW: '广播 %1 并等待'
     },
   };
 
@@ -66,6 +107,7 @@
       minScale: 0.5,
       scaleSpeed: 1.1,
     },
+    sounds: false, // Disable sounds to prevent loading from blockly-demo.appspot.com
     plugins: {
       toolbox: ContinuousToolboxPlugin.ContinuousToolbox,
       flyoutsVerticalToolbox: ContinuousToolboxPlugin.ContinuousFlyout,
@@ -94,7 +136,11 @@
   registerBlocks()
 
   /** @type {import('blockly').Workspace} */
+  let activeTab = 0;
   let workspace;
+  let availableLanguages = [];
+  let showLanguageMenu = false;
+  let currentLanguage = getLanguage();
   let compiler = new Compiler();
   let code;
   let blockSearchQuery = "";
@@ -114,13 +160,75 @@
     color: "#6FFF98",
   };
 
+  let exportConfig = {
+    minify: false,
+    includeComments: true,
+  };
+
   function updateGeneratedCode() {
     code = compiler.compile(workspace, properties);
+    // @ts-ignore - Adding custom property to window
+    window.code = code;
     debuggerExtensionUri = getExtensionUri();
     saveDraft(true);
     if (blockSearchQuery.trim()) {
       searchBlocks(true);
     }
+  }
+
+  function exportAsJS() {
+    if (!code) return;
+    
+    const blob = new Blob([code], { type: 'application/javascript' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${properties.name || 'extension'}.js`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  function exportAsEXF() {
+    if (!workspace) return;
+    
+    try {
+      const projectData = {
+        properties,
+        blocks: window.blocks,
+        xml: Blockly.Xml.workspaceToDom(workspace).outerHTML
+      };
+      
+      const blob = new Blob([JSON.stringify(projectData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${properties.name || 'project'}.exf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error('Error exporting EXF:', e);
+      alert('Failed to export EXF file.');
+    }
+  }
+
+  function openExportModal() {
+    if (typeof window !== 'undefined' && window.modals && window.modals['export']) {
+      window.modals['export'].toggle();
+    }
+  }
+
+  // Expose functions and variables to window for modal access
+  if (typeof window !== 'undefined') {
+    // @ts-ignore - Adding custom properties to window
+    window.exportAsJS = exportAsJS;
+    // @ts-ignore - Adding custom properties to window
+    window.exportAsEXF = exportAsEXF;
+    // @ts-ignore - Adding custom properties to window
+    window.code = code;
   }
 
   function toBase64(value) {
@@ -318,11 +426,15 @@
 
     try {
       workspace.clear();
-    } catch {}
+    } catch (e) {
+      console.error("Error clearing workspace:", e);
+    }
 
-    properties.name = "Extension";
-    properties.id = "extensionID";
-    properties.color = "#6FFF98";
+    properties = {
+      name: "Extension",
+      id: "extensionID",
+      color: "#6FFF98"
+    };
     window.variables = {};
     window.blocks = {};
     blockSearchQuery = "";
@@ -330,6 +442,26 @@
     blockSearchIndex = -1;
     loadError = "";
     updateGeneratedCode();
+  }
+
+  function toggleLanguageMenu() {
+    showLanguageMenu = !showLanguageMenu;
+  }
+
+  function changeLanguage(langCode) {
+    setLanguage(langCode);
+    updateBlocklyLanguage(langCode);
+    showLanguageMenu = false;
+  }
+
+  function updateBlocklyLanguage(langCode) {
+    const lang = blocklyLanguages[langCode] || En;
+    currentBlocklyLocale = {
+      rtl: langCode === 'ar', // Arabic is right-to-left
+      msg: {
+        ...lang
+      },
+    };
   }
 
   onMount(() => {
@@ -340,12 +472,27 @@
     window.variables = {};
     window.blocks = {};
 
+    // Initialize language
+    initLanguage();
+    availableLanguages = getAvailableLanguages();
+    updateBlocklyLanguage(getLanguage());
+
+    // Add language change listener
+    const unsubscribe = addLanguageChangeListener((newLang) => {
+      // Update currentLanguage to trigger re-render
+      currentLanguage = newLang;
+      // Also update Blockly language
+      updateBlocklyLanguage(newLang);
+    });
+
     registerCategories(workspace);
     registerButtons(workspace);
 
     readRecentFiles();
     restoreDraft(true);
     updateGeneratedCode();
+    // @ts-ignore - Adding custom property to window
+    window.code = code;
 
     updateTheme();
 
@@ -372,6 +519,11 @@
     addEventListener('unload', event => {
       localStorage.setItem('localConfig', JSON.stringify(localConfig))
     })
+
+    // Clean up listener on unmount
+    return () => {
+      unsubscribe();
+    };
   });
 </script>
 
@@ -381,28 +533,43 @@
     updateTheme()
   }}></NavigationButton>
   <NavigationDivider />
-  <NavigationButton icon={NavIconSave} on:click={downloadProject}>
-    Save
+  <NavigationButton icon={NavIconSave} on:click={() => openExportModal()}>
+    {t('nav.export')}
   </NavigationButton>
   <NavigationButton icon={NavIconLoad} on:click={loadProject}>
-    Load
+    {t('nav.load')}
   </NavigationButton>
   <NavigationButton icon={NavIconExit} on:click={resetProject}>
-    Reset
+    {t('nav.reset')}
   </NavigationButton>
   <NavigationButton on:click={() => saveDraft(false)}>
-    Save Draft
+    {t('nav.saveDraft')}
   </NavigationButton>
   <NavigationButton on:click={() => restoreDraft(false)}>
-    Restore Draft
+    {t('nav.restoreDraft')}
   </NavigationButton>
   <NavigationDivider />
   <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
-    Experiments
+    {t('nav.experiments')}
   </NavigationButton>
-  <NavigationButton icon={NavIconLang} on:click={() => alert("Testing this feature!")}>
-    Language
-  </NavigationButton>
+  <div class="language-menu-container">
+    <NavigationButton icon={NavIconLang} on:click={toggleLanguageMenu}>
+      {t('nav.language')}
+    </NavigationButton>
+    {#if showLanguageMenu}
+      <div class="language-menu">
+        {#each availableLanguages as lang}
+          <div 
+            class="language-item" 
+            on:click={() => changeLanguage(lang.code)}
+            class:active={lang.code === getLanguage()}
+          >
+            {lang.name}
+          </div>
+        {/each}
+      </div>
+    {/if}
+  </div>
   <NavigationDivider />
   <NavigationButton on:click={() => window.open("https://discord.gg/5EZ2Ngreys", '_blank')}>
     Discord 
@@ -410,99 +577,160 @@
   <NavigationButton on:click={() => window.open("https://qm.qq.com/q/xWWYbY59Ys", '_blank')}>
     QQ 
   </NavigationButton>
+  <NavigationDivider />
+  <NavigationButton on:click={() => {
+    if (typeof window !== 'undefined') {
+      // @ts-ignore - Using custom window property
+      if (window.setActiveTab) {
+        // @ts-ignore - Using custom window property
+        window.setActiveTab(2);
+      }
+    }
+  }}>
+    Settings
+  </NavigationButton>
 </NavigationBar>
 <div id="main">
-  <TabManager let:activeTab let:tabs let:handleTabClick let:registerTab>
-    <Tab title="Editor" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <div id="editor">
-        <div class="editor-search-row">
-          <div class="block-search">
-            <input
-              type="text"
-              placeholder="Search blocks by text or type..."
-              bind:value={blockSearchQuery}
-              on:keydown={(event) => {
-                if (event.key === "Enter") {
-                  searchBlocks();
-                }
-              }}
-            />
-            <button on:click={() => searchBlocks()}>Search</button>
-            <button on:click={() => gotoSearchMatch(-1)} disabled={blockSearchMatches.length === 0}>Prev</button>
-            <button on:click={() => gotoSearchMatch(1)} disabled={blockSearchMatches.length === 0}>Next</button>
-            <span>
-              {#if blockSearchMatches.length > 0}
-                {blockSearchIndex + 1}/{blockSearchMatches.length}
-              {:else}
-                0/0
-              {/if}
-            </span>
+  <TabManager let:activeTab let:tabs let:handleTabClick let:registerTab activeTab={activeTab}>
+    <Tab title={t('tabs.editor')} id={0} {activeTab} {handleTabClick} />
+    <Tab title={t('tabs.display')} id={1} {activeTab} {handleTabClick} />
+    <Tab title={t('tabs.debugger')} id={3} {activeTab} {handleTabClick} />
+    
+    <svelte:fragment slot="content" let:activeTab>
+      {#if activeTab === 0}
+        <div id="editor">
+          <div class="editor-search-row">
+            <div class="block-search">
+              <input
+                type="text"
+                placeholder={t('editor.searchBlocks')}
+                bind:value={blockSearchQuery}
+                on:keydown={(event) => {
+                  if (event.key === "Enter") {
+                    searchBlocks();
+                  }
+                }}
+              />
+              <button on:click={() => searchBlocks()}>{t('editor.search')}</button>
+              <button on:click={() => gotoSearchMatch(-1)} disabled={blockSearchMatches.length === 0}>{t('editor.prev')}</button>
+              <button on:click={() => gotoSearchMatch(1)} disabled={blockSearchMatches.length === 0}>{t('editor.next')}</button>
+              <span>
+                {#if blockSearchMatches.length > 0}
+                  {blockSearchIndex + 1}/{blockSearchMatches.length}
+                {:else}
+                  0/0
+                {/if}
+              </span>
+            </div>
+          </div>
+          <div class="editor-main">
+            <div class="blockly-container">
+              <BlocklyComponent {config} locale={currentBlocklyLocale} bind:workspace />
+            </div>
+            <div class="code">
+              <CodePreview {code} />
+            </div>
           </div>
         </div>
-        <div class="editor-main">
-          <div class="blockly-container">
-            <BlocklyComponent {config} locale={en} bind:workspace />
+      {:else if activeTab === 1}
+        <div class="display">
+          <div class="properties-panel">
+            <PropertiesPicker {properties} on:update={updateGeneratedCode} />
           </div>
-          <div class="code">
-            <CodePreview {code} />
+          <div class="blocks-panel">
+            <BlocksMenu />
           </div>
         </div>
-      </div>
-    </Tab>
-    <Tab title="Display" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <div class="display">
-        <div class="properties-panel">
-          <PropertiesPicker {properties} on:update={updateGeneratedCode} />
+      {:else if activeTab === 2}
+        <div class="settings">
+          <h2>{t('settings.general')} {t('tabs.settings')}</h2>
+          <div class="settings-panel">
+            <div class="setting-group">
+              <h3>{t('settings.general')}</h3>
+              <div class="setting-item">
+                <label for="project-name">{t('properties.projectName')}</label>
+                <input id="project-name" type="text" bind:value={properties.name} on:input={updateGeneratedCode} />
+              </div>
+              <div class="setting-item">
+                <label for="project-id">{t('properties.projectId')}</label>
+                <input id="project-id" type="text" bind:value={properties.id} on:input={updateGeneratedCode} />
+              </div>
+              <div class="setting-item">
+                <label for="project-color">{t('properties.projectColor')}</label>
+                <input id="project-color" type="color" bind:value={properties.color} on:input={updateGeneratedCode} />
+              </div>
+            </div>
+            <div class="setting-group">
+              <h3>{t('settings.editor')}</h3>
+              <div class="setting-item">
+                <label for="dark-mode">{t('settings.darkMode')}</label>
+                <input id="dark-mode" type="checkbox" checked={localConfig.dark} on:change={() => {
+                  localConfig.dark = !localConfig.dark;
+                  updateTheme();
+                }} />
+              </div>
+            </div>
+            <div class="setting-group">
+              <h3>{t('settings.export')}</h3>
+              <div class="setting-item">
+                <label for="minify-code">{t('settings.minifyCode')}</label>
+                <input id="minify-code" type="checkbox" bind:checked={exportConfig.minify} />
+              </div>
+              <div class="setting-item">
+                <label for="include-comments">{t('settings.includeComments')}</label>
+                <input id="include-comments" type="checkbox" bind:checked={exportConfig.includeComments} />
+              </div>
+              <div class="export-buttons">
+                <button on:click={() => exportAsJS()}>{t('export.exportAsJS')}</button>
+                <button on:click={() => exportAsEXF()}>{t('export.exportAsEXF')}</button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="blocks-panel">
-          <BlocksMenu />
-        </div>
-      </div>
-    </Tab>
-    <Tab title="Debugger(Testing)" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <div class="debugger">
-        <div class="debugger-toolbar">
-          <label>
-            Source
-            <input value={DEBUGGER_EDITOR_BASE_URL} readonly />
+      {:else if activeTab === 3}
+        <div class="debugger">
+          <div class="debugger-toolbar">
+            <label>
+              {t('debugger.source')}
+              <input value={DEBUGGER_EDITOR_BASE_URL} readonly />
+            </label>
+            <button on:click={copyExtensionUrl}>{copiedExtensionUrl ? t('debugger.urlCopied') : t('debugger.copyUrl')}</button>
+            <button on:click={openDebuggerInNewTab}>{t('debugger.openInNewTab')}</button>
+          </div>
+          {#if loadError}
+            <p class="debugger-error">{loadError}</p>
+          {/if}
+          <p class="debugger-status">
+            Imported Extension: <b>{properties.name}</b> (`{properties.id}`)
+          </p>
+          <label class="debugger-extension-uri">
+            {t('debugger.extensionUrl')}
+            <input value={debuggerExtensionUri} readonly />
           </label>
-          <button on:click={copyExtensionUrl}>{copiedExtensionUrl ? "Copied" : "Copy Extension URL"}</button>
-          <button on:click={openDebuggerInNewTab}>Open 02Engine Debugger</button>
+          <p class="debugger-note">
+            {t('debugger.debuggerNote')}
+          </p>
+          <p class="debugger-note">{t('debugger.lastDraftAutoSave')}: {lastAutoSaveAt || t('debugger.notYet')}</p>
+          {#if recentFiles.length > 0}
+            <div class="recent-files">
+              <span>{t('debugger.recentFiles')}:</span>
+              <ul>
+                {#each recentFiles as file}
+                  <li>{file.name} - {file.time}</li>
+                {/each}
+              </ul>
+            </div>
+          {/if}
         </div>
-        {#if loadError}
-          <p class="debugger-error">{loadError}</p>
-        {/if}
-        <p class="debugger-status">
-          Imported Extension: <b>{properties.name}</b> (`{properties.id}`)
-        </p>
-        <label class="debugger-extension-uri">
-          Extension URL
-          <input value={debuggerExtensionUri} readonly />
-        </label>
-        <p class="debugger-note">
-          Debugger now opens directly in a new window for stable testing.
-        </p>
-        <p class="debugger-note">Last draft auto-save: {lastAutoSaveAt || "Not yet"}</p>
-        {#if recentFiles.length > 0}
-          <div class="recent-files">
-            <span>Recent Files:</span>
-            <ul>
-              {#each recentFiles as file}
-                <li>{file.name} - {file.time}</li>
-              {/each}
-            </ul>
-          </div>
-        {/if}
-      </div>
-    </Tab>
-    <Tab title="Export" {activeTab} {tabs} {handleTabClick} {registerTab}>
-      <ExportMenu {code} />
-    </Tab>
+
+      {/if}
+    </svelte:fragment>
   </TabManager>
 </div>
 <ExperimentsModal />
 <CreateVariableModal />
 <EditBlockModal />
+<ExportModal />
 
 <style>
   #main {
@@ -733,22 +961,202 @@
   }
 
   :global(.dark) .debugger-toolbar label input {
-    background: #111;
-    border-color: #fff2;
+        background: #111;
+        border-color: #fff2;
+    }
+
+    .settings {
+        padding: 1rem;
+        height: 100%;
+        box-sizing: border-box;
+        overflow: auto;
+    }
+
+    .settings h2 {
+        margin-top: 0;
+        color: #333;
+    }
+
+    .settings-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .setting-group {
+        background: #f5f5f5;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .setting-group h3 {
+        margin-top: 0;
+        color: #ff9800;
+        border-bottom: 1px solid #e0e0e0;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+    }
+
+    .setting-item label {
+        font-weight: 600;
+        color: #555;
+    }
+
+    .setting-item input {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #fff;
+    }
+
+    .setting-item input[type="checkbox"] {
+        width: auto;
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .export-buttons button {
+        background: #4bf;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+
+    .export-buttons button:hover {
+        background: #38d;
+    }
+
+    :global(.dark) .export-buttons button {
+        background: #3a9;
+    }
+
+    :global(.dark) .export-buttons button:hover {
+        background: #287;
+    }
+
+    :global(.dark) .settings h2 {
+        color: #fff;
+    }
+
+    :global(.dark) .setting-group {
+        background: #333;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    :global(.dark) .setting-group h3 {
+        color: #ffb74d;
+        border-bottom-color: #555;
+    }
+
+    :global(.dark) .setting-item label {
+        color: #ddd;
+    }
+
+    :global(.dark) .setting-item input {
+        background: #111;
+        border-color: #555;
+        color: #fff;
+    }
+
+    @media (max-width: 1280px) {
+        .blockly-container {
+            width: 100vw;
+        }
+
+        .block-search input {
+            width: min(52vw, 280px);
+        }
+
+        .code {
+            display: none;
+        }
+
+        .setting-item {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .setting-item input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+    }
+
+  /* Language menu styles */
+  .language-menu-container {
+    position: relative;
+    display: inline-block;
   }
 
-  @media (max-width: 1280px) {
-    .blockly-container {
-      width: 100vw;
-    }
+  .language-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border: 1px solid #dee2e6;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    min-width: 180px;
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+  }
 
-    .block-search input {
-      width: min(52vw, 280px);
-    }
+  .language-item {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f8f9fa;
+  }
 
-    .code {
-      display: none;
-    }
+  .language-item:hover {
+    background-color: #f8f9fa;
+  }
 
+  .language-item.active {
+    background-color: #007bff;
+    color: white;
+  }
+
+  .language-item:last-child {
+    border-bottom: none;
+  }
+
+  :global(.dark) .language-menu {
+    background: #343a40;
+    border-color: #495057;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  :global(.dark) .language-item {
+    border-bottom-color: #495057;
+    color: #e9ecef;
+  }
+
+  :global(.dark) .language-item:hover {
+    background-color: #495057;
+  }
+
+  :global(.dark) .language-item.active {
+    background-color: #007bff;
+    color: white;
   }
 </style>

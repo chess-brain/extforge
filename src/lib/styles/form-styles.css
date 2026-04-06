@@ -1,0 +1,262 @@
+/* 通用表单元素样式 */
+
+/* 美化单选按钮 */
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.radio-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.radio-item input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.radio-item .radio-custom {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    border: 2px solid #ced4da;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.radio-item:hover .radio-custom {
+    border-color: #007bff;
+}
+
+.radio-item input[type="radio"]:checked + .radio-custom {
+    border-color: #007bff;
+    background-color: #007bff;
+}
+
+.radio-item .radio-custom::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: white;
+    transition: transform 0.3s ease;
+}
+
+.radio-item input[type="radio"]:checked + .radio-custom::after {
+    transform: translate(-50%, -50%) scale(1);
+}
+
+.radio-item label {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.radio-item input[type="radio"]:checked + .radio-custom + label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* 深色模式 */
+:global(.dark) .radio-item:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+:global(.dark) .radio-item .radio-custom {
+    border-color: #495057;
+}
+
+:global(.dark) .radio-item:hover .radio-custom {
+    border-color: #007bff;
+}
+
+:global(.dark) .radio-item label {
+    color: #e9ecef;
+}
+
+:global(.dark) .radio-item input[type="radio"]:checked + .radio-custom + label {
+    color: #007bff;
+}
+
+/* 美化复选框 */
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-item:hover {
+    background-color: rgba(0, 123, 255, 0.05);
+}
+
+.checkbox-item input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.checkbox-item .checkbox-custom {
+    position: relative;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-right: 12px;
+    border: 2px solid #ced4da;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.checkbox-item:hover .checkbox-custom {
+    border-color: #007bff;
+}
+
+.checkbox-item input[type="checkbox"]:checked + .checkbox-custom {
+    border-color: #007bff;
+    background-color: #007bff;
+}
+
+.checkbox-item .checkbox-custom::after {
+    content: "";
+    position: absolute;
+    top: 2px;
+    left: 6px;
+    width: 6px;
+    height: 12px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.3s ease;
+}
+
+.checkbox-item input[type="checkbox"]:checked + .checkbox-custom::after {
+    transform: rotate(45deg) scale(1);
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #495057;
+    transition: color 0.3s ease;
+}
+
+.checkbox-item input[type="checkbox"]:checked + .checkbox-custom + label {
+    color: #007bff;
+    font-weight: 500;
+}
+
+/* 深色模式 */
+:global(.dark) .checkbox-item:hover {
+    background-color: rgba(0, 123, 255, 0.1);
+}
+
+:global(.dark) .checkbox-item .checkbox-custom {
+    border-color: #495057;
+}
+
+:global(.dark) .checkbox-item:hover .checkbox-custom {
+    border-color: #007bff;
+}
+
+:global(.dark) .checkbox-item label {
+    color: #e9ecef;
+}
+
+:global(.dark) .checkbox-item input[type="checkbox"]:checked + .checkbox-custom + label {
+    color: #007bff;
+}
+
+/* 美化输入框 */
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #495057;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.form-input::placeholder {
+    color: #6c757d;
+}
+
+/* 深色模式 */
+:global(.dark) .form-input {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #e9ecef;
+}
+
+:global(.dark) .form-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+:global(.dark) .form-input::placeholder {
+    color: #6c757d;
+}
+
+/* 美化下拉菜单 */
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.3s ease;
+    background-color: white;
+    color: #495057;
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+}
+
+.form-select:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+/* 深色模式 */
+:global(.dark) .form-select {
+    background-color: #343a40;
+    border-color: #495057;
+    color: #e9ecef;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236c757d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+:global(.dark) .form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}

@@ -8,6 +8,8 @@ import registerInputs from "./inputs";
 import registerVariables from "./variables";
 import registerLists from "./lists";
 import registerBlocks from "./blocks";
+import registerExtra from "./extra";
+import registerAdvanced from "./advanced";
 
 import registerRuntime from "./runtime";
 import registerScript from "./script";
@@ -24,6 +26,8 @@ export default () => {
     registerVariables();
     registerLists();
     registerBlocks();
+    registerExtra();
+    registerAdvanced();
 
     registerRuntime();
     registerScript();

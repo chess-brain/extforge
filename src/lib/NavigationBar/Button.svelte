@@ -21,36 +21,49 @@
     img {
         height: 1.5rem;
         margin-right: 0.5rem;
-        opacity: 0.8;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
     }
 
     b {
-        opacity: 0.8;
+        opacity: 0.9;
+        transition: opacity 0.3s ease;
     }
     b:empty {
-        margin-left: -0.5rem;
+        margin-left: 0;
     }
 
     button {
         position: relative;
 
-        height: 100%;
-        padding: 0 0.75rem;
+        height: 2.5rem;
+        padding: 0 1rem;
+        margin: 0 4px;
 
         display: flex;
         flex-direction: row;
         align-items: center;
+        justify-content: center;
 
         font-family: 'Noto Sans', sans-serif;
-        font-weight: bold;
-        font-size: 0.75rem;
-        color: #000;
-        background: transparent;
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: white;
+        background: rgba(255, 255, 255, 0.1);
         cursor: pointer;
         border: 0;
-        transition: background 0.3s cubic-bezier(0, 0, 0.3, 1);
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     button:hover {
-        background: #fff4
+        background: rgba(255, 255, 255, 0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+    
+    button:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 </style>

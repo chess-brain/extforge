@@ -1,6 +1,12 @@
 <script>
     import Blockly from "blockly/core"
     import Modal from "./Modal.svelte";
+    import * as i18n from "../../i18n";
+    
+    // 使用函数包装t，确保每次都获取最新的语言
+    function t(key) {
+        return i18n.t(key);
+    }
 
     let varName = "my variable"
     let varType = "null"
@@ -20,18 +26,18 @@
     let id = "createVariable"
 </script>
 
-<Modal id={id} title="Register Variable" let:data>
+<Modal id={id} title={t('variables.registerVariable')} let:data>
     <div class="main">
-        <input type="text" placeholder="variable name" bind:value={varName}>
+        <input type="text" placeholder={t('variables.variableName')} bind:value={varName}>
         <select bind:value={varType}>
-            <option value="null">Unknown</option>
-            <option value="String">String</option>
-            <option value="Number">Number</option>
-            <option value="Boolean">Boolean</option>
-            <option value="List">List</option>
-            <option value="Vector">Vector</option>
+            <option value="null">{t('variables.unknown')}</option>
+            <option value="String">{t('blocks.string')}</option>
+            <option value="Number">{t('blocks.number')}</option>
+            <option value="Boolean">{t('blocks.boolean')}</option>
+            <option value="List">{t('variables.list')}</option>
+            <option value="Vector">{t('variables.vector')}</option>
         </select>
-        <button class="btn" on:click={() => {register(data)}}>Register</button>
+        <button class="btn" on:click={() => {register(data)}}>{t('variables.register')}</button>
     </div>
 </Modal>
 

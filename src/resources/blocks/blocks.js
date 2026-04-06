@@ -48,6 +48,11 @@ function register() {
             let block = window.blocks[this.blockId_]
             if (!block) return
             
+            // Set block color
+            if (block.colour) {
+                this.setColour(block.colour)
+            }
+            
             let i = 0
             for (let field of block.fields) {
                 switch (field.type) {
@@ -199,6 +204,11 @@ function register() {
 
             let block = window.blocks[this.blockId_]
             if (!block) return
+
+            // Set block color
+            if (block.colour) {
+                this.setColour(block.colour)
+            }
 
             this.setOutput(false)
             this.setPreviousStatement(false)

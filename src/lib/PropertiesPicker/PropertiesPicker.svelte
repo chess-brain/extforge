@@ -1,6 +1,12 @@
 <script>
     import { createEventDispatcher } from "svelte";
+    import * as i18n from "../../i18n";
     const dispatch = createEventDispatcher()
+    
+    // 使用函数包装t，确保每次都获取最新的语言
+    function t(key) {
+        return i18n.t(key);
+    }
 
     export let properties = {
         name: "Extension",
@@ -27,8 +33,8 @@
             <span class="name" contenteditable="plaintext-only" bind:innerText={properties.name} on:blur={validateName}></span>
         </div>
         <div class="vert equal">
-            <span>ID: <input type="text" placeholder="extensionID" maxlength="20" bind:value={properties.id} on:blur={update}></span>
-            <span>Color: <input type="color" bind:value={properties.color} on:blur={update}></span>
+            <span>{t('properties.id')}: <input type="text" placeholder="extensionID" maxlength="20" bind:value={properties.id} on:blur={update}></span>
+            <span>{t('properties.color')}: <input type="color" bind:value={properties.color} on:blur={update}></span>
         </div>
     </div>
     <slot {properties} />

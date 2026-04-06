@@ -1,101 +1,67 @@
 <script>
     export let title = 'Unknown';
-
+    export let id;
     export let activeTab = 0;
-    export let tabs;
     export let handleTabClick; 
-    export let registerTab;
-
-    let id = registerTab();
 
     function handleClick() {
         handleTabClick(id)
     }
 </script>
 
-<div class:active={id === activeTab} class="tab-header">
-    <button class:active={id === activeTab} on:click={handleClick}>{title}</button>
-    <div class="contents" style:left={`calc(-${id}*100vw)`}><slot /></div>
-</div>
+<button class:active={id === activeTab} on:click={handleClick}>{title}</button>
 
 <style>
-    div.tab-header {
-        position: relative;
-        height: 100%;
-        flex: 1;
-    }
-    
-    div.active {
-        z-index: 2;
-    }
-
     button {
-        position: relative;
-        display: inline-block;
-        padding: 8px 16px;
-        margin-right: -1px;
-        border: 1px solid #ccc;
+        padding: 10px 20px;
+        margin-right: 4px;
+        border: 1px solid #e0e0e0;
         border-bottom: none;
-        background: #eee;
+        background: #f8f9fa;
         cursor: pointer;
         font-family: 'Noto Sans', sans-serif;
-        font-weight: bold;
-        font-size: 0.75rem;
-        color: #000;
-        border-radius: 4px 4px 0 0;
-        height: 2.2em;
+        font-weight: 500;
+        font-size: 0.875rem;
+        color: #495057;
+        border-radius: 8px 8px 0 0;
+        height: 2.5em;
         box-sizing: border-box;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
     }
     
     button:hover {
-        background: #ddd;
+        background: #e9ecef;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
     
     button.active {
         background: white;
-        border-bottom: 1px solid white;
-        margin-bottom: -1px;
-        color: #333;
-        font-weight: bold;
+        border-color: #dee2e6;
+        border-bottom: 3px solid #007bff;
+        color: #007bff;
+        font-weight: 600;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.1);
     }
 
     :global(.dark) button {
-        background: #333;
-        color: #fff;
-        border-color: #555;
+        background: #343a40;
+        color: #e9ecef;
+        border-color: #495057;
     }
     
     :global(.dark) button:hover {
-        background: #444;
+        background: #495057;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     }
     
     :global(.dark) button.active {
-        background: #222;
-        color: #fff;
-        border-bottom: 1px solid #222;
-    }
-
-    .contents {
-        width: 100%;
-        height: calc(100% - 2.2em);
-        position: absolute;
-        top: 2.2em;
-        display: block;
-        overflow: auto;
-        background: white;
-        border: 1px solid #ccc;
-        border-top: none;
-        box-sizing: border-box;
-    }
-    
-    :global(.dark) .contents {
-        background: #222;
-        border-color: #555;
-        color: #fff;
-    }
-    
-    div:not(.active) .contents {
-        display: none;
+        background: #212529;
+        border-color: #495057;
+        border-bottom: 3px solid #007bff;
+        color: #007bff;
+        box-shadow: 0 2px 4px rgba(0, 123, 255, 0.2);
     }
 </style>

@@ -1,6 +1,12 @@
 <script>
     import Modal from "./Modal.svelte";
     import util from "../../resources/util";
+    import * as i18n from "../../i18n";
+    
+    // 使用函数包装t，确保每次都获取最新的语言
+    function t(key) {
+        return i18n.t(key);
+    }
 
     let id = "editblock";
 
@@ -78,7 +84,7 @@
     });
 </script>
 
-<Modal {id} title="Edit Block" let:data>
+<Modal {id} title={t('blocks.editBlock')} let:data>
     <div class="main">
         <div class="preview">
             <BlocklyComponent {config} locale={en} bind:workspace />
@@ -86,8 +92,8 @@
         <div class="fields">
             <table class="fields">
                 <tr>
-                    <th>Type</th>
-                    <th>Text</th>
+                    <th>{t('blocks.type')}</th>
+                    <th>{t('blocks.text')}</th>
                     <th><!-- options --></th>
                     <th><!-- buttons --></th>
                 </tr>
@@ -99,10 +105,10 @@
                                 data.update()
                                 updateBlocks(data)
                             }}>
-                                <option value="label">Label</option>
-                                <option value="string">String</option>
-                                <option value="number">Number</option>
-                                <option value="boolean">Boolean</option>
+                                <option value="label">{t('blocks.label')}</option>
+                                <option value="string">{t('blocks.string')}</option>
+                                <option value="number">{t('blocks.number')}</option>
+                                <option value="boolean">{t('blocks.boolean')}</option>
                             </select>
                         </td>
                         <td>
@@ -114,13 +120,13 @@
                         </td>
                         <td>
                             {#if data.tempBlock.fields[i].type == "string"}
-                                <input type="text" value={data.tempBlock.fields[i].default ?? ""} placeholder="Default value" on:change={(e) => {
+                                <input type="text" value={data.tempBlock.fields[i].default ?? ""} placeholder={t('blocks.defaultValue')} on:change={(e) => {
                                     data.tempBlock.fields[i].default = e.target.value
                                     data.update()
                                     updateBlocks(data)
                                 }} />
                             {:else if data.tempBlock.fields[i].type == "number"}
-                                <input type="number" value={data.tempBlock.fields[i].default ?? ""} placeholder="Default value" on:change={(e) => {
+                                <input type="number" value={data.tempBlock.fields[i].default ?? ""} placeholder={t('blocks.defaultValue')} on:change={(e) => {
                                     data.tempBlock.fields[i].default = e.target.value
                                     data.update()
                                     updateBlocks(data)
@@ -132,7 +138,7 @@
                                 data.tempBlock.fields.splice(i, 1)
                                 data.update()
                                 updateBlocks(data)
-                            }}>Delete</button>
+                            }}>{t('blocks.delete')}</button>
                         </td>
                     </tr>
                 {/each}
@@ -148,15 +154,15 @@
                 })
                 data.update()
                 updateBlocks(data)
-            }}>Add field</button>
+            }}>{t('blocks.addField')}</button>
             <select value={(data.tempBlock ?? {}).type} on:change={(e) => {
                 data.tempBlock.type = e.target.value
                 data.update()
                 updateBlocks(data)
             }}>
-                <option value="command">Command</option>
-                <option value="reporter">Reporter</option>
-                <option value="Boolean">Boolean</option>
+                <option value="command">{t('blocks.command')}</option>
+                <option value="reporter">{t('blocks.reporter')}</option>
+                <option value="Boolean">{t('blocks.boolean')}</option>
             </select>
         </div>
     </div>

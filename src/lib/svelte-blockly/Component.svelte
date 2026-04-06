@@ -65,59 +65,70 @@
         }
     }
 
+    const dispatch = createEventDispatcher();
+    let width, height;
+    let rootElement;
+    function injectWorkspace(dom, { config, locale: { msg, rtl } }) {
+        Blockly.setLocale(msg);
+        workspace = Blockly.inject(rootElement, {
+            ...config,
+            toolbox:
+                config.toolbox ? '<xml><category name="Loading..." colour="100"></category></xml>' : null,
+            rtl,
+        });
+        registerDynamicCategories(workspace);
+        if (config.toolbox) workspace.updateToolbox(config.toolbox);
+        requestAnimationFrame(() => applyCategoryIcons(rootElement));
+        workspace.refreshToolboxSelection();
+        if (dom !== null) {
+            try {
+                // don't record this reloading of the workspace for undo
+                Blockly.Events.recordUndo = false;
+                Blockly.Xml.clearWorkspaceAndLoadFromXml(dom, workspace);
+                Blockly.Events.recordUndo = true;
+            } catch (ex) {
+                console.warn(ex);
+            }
+        }
+        workspace.addChangeListener(() => {
+            dispatch("change");
+        });
+        workspace.addChangeListener(() => {
+            requestAnimationFrame(() => applyCategoryIcons(rootElement));
+        });
+        // TODO this is a terrible hack, but there's no scroll event
+        // translate is the most fundamental in a set of methods
+        // that move and zoom the workspace
+        // using an arrow function, so `this` is the component not the workspace
+        const translate = workspace.translate.bind(workspace);
+        workspace.translate = (x, y) => {
+            translate(x, y);
+            const { scrollX, scrollY, scale } = workspace;
+            transform = { scrollX, scrollY, scale };
+        };
+        if (transform !== undefined) {
+            applyTransform();
+        } else {
+            const { scrollX, scrollY, scale } = workspace;
+            transform = { scrollX, scrollY, scale };
+        }
+    }
     $: {
         // evaluate transform to establish a reactive dependency
         transform;
         applyTransform();
     }
-    const dispatch = createEventDispatcher();
-    let width, height;
-    function initRoot(root, param) {
-        function injectWorkspace(dom, { config, locale: { msg, rtl } }) {
-            Blockly.setLocale(msg);
-            workspace = Blockly.inject(root, {
-                ...config,
-                toolbox:
-                    config.toolbox ? '<xml><category name="Loading..." colour="100"></category></xml>' : null,
-                rtl,
-            });
-            registerDynamicCategories(workspace);
-            if (config.toolbox) workspace.updateToolbox(config.toolbox);
-            requestAnimationFrame(() => applyCategoryIcons(root));
-            workspace.refreshToolboxSelection();
-            if (dom !== null) {
-                try {
-                    // don't record this reloading of the workspace for undo
-                    Blockly.Events.recordUndo = false;
-                    Blockly.Xml.clearWorkspaceAndLoadFromXml(dom, workspace);
-                    Blockly.Events.recordUndo = true;
-                } catch (ex) {
-                    console.warn(ex);
-                }
-            }
-            workspace.addChangeListener(() => {
-                dispatch("change");
-            });
-            workspace.addChangeListener(() => {
-                requestAnimationFrame(() => applyCategoryIcons(root));
-            });
-            // TODO this is a terrible hack, but there's no scroll event
-            // translate is the most fundamental in a set of methods
-            // that move and zoom the workspace
-            // using an arrow function, so `this` is the component not the workspace
-            const translate = workspace.translate.bind(workspace);
-            workspace.translate = (x, y) => {
-                translate(x, y);
-                const { scrollX, scrollY, scale } = workspace;
-                transform = { scrollX, scrollY, scale };
-            };
-            if (transform !== undefined) {
-                applyTransform();
-            } else {
-                const { scrollX, scrollY, scale } = workspace;
-                transform = { scrollX, scrollY, scale };
-            }
+    $: {
+        // Recreate workspace when locale changes
+        locale;
+        if (workspace && rootElement) {
+            const dom = Blockly.Xml.workspaceToDom(workspace);
+            workspace.dispose();
+            injectWorkspace(dom, { config, locale });
         }
+    }
+    function initRoot(root, param) {
+        rootElement = root;
         injectWorkspace(null, param);
         return {
             update(param) {
