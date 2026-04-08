@@ -6,9 +6,34 @@ import util from '../util';
 const categoryPrefix = 'control_';
 const categoryColor = '#fb6';
 
+// Ensure translations exist before registering blocks
+function ensureTranslationsExist() {
+    const translations = {
+        BKY_CONTROL_IF: 'if %1 then %2 %3',
+        BKY_CONTROL_ELSEIF: 'else if',
+        BKY_CONTROL_ELSE: 'else',
+        BKY_CONTROL_THEN: 'then',
+        BKY_CONTROL_WAIT: 'wait %1 seconds',
+        BKY_CONTROL_WAITFRAME: 'wait until next frame',
+        BKY_CONTROL_WAITUNTIL: 'wait until %1',
+        BKY_CONTROL_WHILE: 'while %1 do %2 %3',
+        BKY_CONTROL_REPEAT: 'repeat %1 times %2 %3',
+        BKY_CONTROL_RETURN: 'return %1',
+        BKY_CONTROL_INLINE: 'inline %1 %2'
+    };
+    
+    Object.entries(translations).forEach(([key, value]) => {
+        if (!Blockly.Msg[key]) {
+            console.warn(`[WARN] ${key} not found in Blockly.Msg, using fallback`);
+            Blockly.Msg[key] = value;
+        }
+    });
+}
+
 function register() {
+    ensureTranslationsExist();
     registerBlock(`${categoryPrefix}if`, {
-        message0: 'if %1 then %2 %3',
+        message0: '%{BKY_CONTROL_IF}',
         args0: [
             {
                 "type": "input_value",
@@ -74,7 +99,7 @@ function register() {
     }, (block) => {})
 
     registerBlock(`${categoryPrefix}wait`, {
-        message0: 'wait %1 seconds',
+        message0: '%{BKY_CONTROL_WAIT}',
         args0: [
             {
                 "type": "field_number",
@@ -94,7 +119,7 @@ function register() {
         return `${code}\n`;
     })
     registerBlock(`${categoryPrefix}waitF`, {
-        message0: 'wait until next frame',
+        message0: 'wait 1 frame',
         args0: [],
         previousStatement: null,
         nextStatement: null,
@@ -106,7 +131,7 @@ function register() {
         return `${code}\n`;
     })
     registerBlock(`${categoryPrefix}waitU`, {
-        message0: 'wait until %1',
+        message0: '%{BKY_CONTROL_WAITUNTIL}',
         args0: [
             {
                 "type": "input_value",
@@ -127,7 +152,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}while`, {
-        message0: 'while %1 do %2 %3',
+        message0: '%{BKY_CONTROL_WHILE}',
         args0: [
             {
                 "type": "input_value",
@@ -154,7 +179,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}repeat`, {
-        message0: 'repeat %1 %2 %3',
+        message0: '%{BKY_CONTROL_REPEAT}',
         args0: [
             {
                 "type": "field_number",
@@ -184,7 +209,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}return`, {
-        message0: 'return %1',
+        message0: '%{BKY_CONTROL_RETURN}',
         args0: [
             {
                 "type": "field_input",
@@ -204,7 +229,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}inline`, {
-        message0: 'inline %1 %2',
+        message0: '%{BKY_CONTROL_INLINE}',
         args0: [
             {
                 "type": "input_dummy"
@@ -370,14 +395,14 @@ function register() {
             for (let i = 1; i <= this.elseifCount_; i++) {
                 this.appendValueInput(`BOOL${i}`)
                     .setCheck('Boolean')
-                    .appendField("else if")
+                    .appendField(Blockly.Msg['BKY_CONTROL_ELSEIF'] || 'else if')
                 this.appendDummyInput(`DUMMY${i}`)
-                    .appendField("then")
+                    .appendField(Blockly.Msg['BKY_CONTROL_THEN'] || 'then')
                 this.appendStatementInput(`BLOCKS${i}`)
             }
             if (this.elseCount_) {
                 this.appendDummyInput('DUMMYELSE')
-                    .appendField("else")
+                    .appendField(Blockly.Msg['BKY_CONTROL_ELSE'] || 'else')
                 this.appendStatementInput('ELSE')
             }
         },

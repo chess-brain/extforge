@@ -3,11 +3,38 @@ import { registerBlock } from '../register';
 import Blockly from 'blockly/core';
 
 const categoryPrefix = 'runtime_';
-const categoryColor = '#aaa';
+const categoryColor = '#6FFF98';
+
+// Ensure translations exist before registering blocks
+function ensureTranslationsExist() {
+    const translations = {
+        BKY_RUNTIME_START: 'start project',
+        BKY_RUNTIME_STOP: 'stop project',
+        BKY_RUNTIME_RUNNING: 'project running?',
+        BKY_RUNTIME_ONSTART: 'when project started %1 %2',
+        BKY_RUNTIME_ONSTOP: 'when project stopped %1 %2',
+        BKY_RUNTIME_BEFORETICK: 'before project tick %1 %2',
+        BKY_RUNTIME_AFTERTICK: 'after project tick %1 %2',
+        BKY_RUNTIME_TURBOGET: 'turbo mode enabled?',
+        BKY_RUNTIME_TURBOSET: 'set turbo mode to %1',
+        BKY_RUNTIME_FRAMEGET: 'frame rate',
+        BKY_RUNTIME_FRAMESET: 'set frame rate to %1',
+        BKY_RUNTIME_TIMER: 'project timer',
+        BKY_RUNTIME_BROADCAST: 'broadcast project %1'
+    };
+    
+    Object.entries(translations).forEach(([key, value]) => {
+        if (!Blockly.Msg[key]) {
+            console.warn(`[WARN] ${key} not found in Blockly.Msg, using fallback`);
+            Blockly.Msg[key] = value;
+        }
+    });
+}
 
 function register() {
+    ensureTranslationsExist();
     registerBlock(`${categoryPrefix}start`, {
-        message0: 'start project',
+        message0: '%{BKY_RUNTIME_START}',
         args0: [],
         previousStatement: null,
         nextStatement: null,
@@ -18,7 +45,7 @@ function register() {
         return `${code}\n`;
     })
     registerBlock(`${categoryPrefix}stop`, {
-        message0: 'stop project',
+        message0: '%{BKY_RUNTIME_STOP}',
         args0: [],
         previousStatement: null,
         nextStatement: null,
@@ -30,7 +57,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}running`, {
-        message0: 'project running?',
+        message0: '%{BKY_RUNTIME_RUNNING}',
         args0: [],
         output: "Boolean",
         inputsInline: true,
@@ -41,7 +68,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}onstart`, {
-        message0: 'when project started %1 %2',
+        message0: '%{BKY_RUNTIME_ONSTART}',
         args0: [
             {
                 "type": "input_dummy"
@@ -61,7 +88,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}onstop`, {
-        message0: 'when project stopped %1 %2',
+        message0: '%{BKY_RUNTIME_ONSTOP}',
         args0: [
             {
                 "type": "input_dummy"
@@ -81,7 +108,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}beforetick`, {
-        message0: 'before project tick %1 %2',
+        message0: '%{BKY_RUNTIME_BEFORETICK}',
         args0: [
             {
                 "type": "input_dummy"
@@ -101,7 +128,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}aftertick`, {
-        message0: 'after project tick %1 %2',
+        message0: '%{BKY_RUNTIME_AFTERTICK}',
         args0: [
             {
                 "type": "input_dummy"
@@ -121,7 +148,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}turboget`, {
-        message0: 'turbo mode enabled?',
+        message0: '%{BKY_RUNTIME_TURBOGET}',
         args0: [],
         output: "Boolean",
         inputsInline: true,
@@ -131,7 +158,7 @@ function register() {
         return [`${code}`, 0];
     })
     registerBlock(`${categoryPrefix}turboset`, {
-        message0: 'set turbo mode to %1',
+        message0: '%{BKY_RUNTIME_TURBOSET}',
         args0: [
             {
                 "type": "input_value",
@@ -150,7 +177,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}frameget`, {
-        message0: 'frame rate',
+        message0: '%{BKY_RUNTIME_FRAMEGET}',
         args0: [],
         output: "Number",
         inputsInline: true,
@@ -160,7 +187,7 @@ function register() {
         return [`${code}`, 0];
     })
     registerBlock(`${categoryPrefix}frameset`, {
-        message0: 'set frame rate to %1',
+        message0: '%{BKY_RUNTIME_FRAMESET}',
         args0: [
             {
                 "type": "field_number",
@@ -181,7 +208,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}timer`, {
-        message0: 'project timer',
+        message0: '%{BKY_RUNTIME_TIMER}',
         args0: [],
         output: "Number",
         inputsInline: true,
@@ -192,7 +219,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}broadcast`, {
-        message0: 'broadcast project %1',
+        message0: '%{BKY_RUNTIME_BROADCAST}',
         args0: [
             {
                 "type": "field_input",

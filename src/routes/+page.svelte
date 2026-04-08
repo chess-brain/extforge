@@ -1,16 +1,9 @@
 <script lang="ts">
+  import { browser } from '$app/environment';
   import Blockly from "blockly/core";
 
   import En from "blockly/msg/en";
   import ZhCN from "blockly/msg/zh-hans";
-  import ZhTW from "blockly/msg/zh-hant";
-  import Fr from "blockly/msg/fr";
-  import Es from "blockly/msg/es";
-  import De from "blockly/msg/de";
-  import Ja from "blockly/msg/ja";
-  import Ar from "blockly/msg/ar";
-  import Pt from "blockly/msg/pt";
-  import Ru from "blockly/msg/ru";
   import "blockly/blocks";
   import "blockly/javascript";
 
@@ -66,30 +59,96 @@
   // Blockly language mappings
   const blocklyLanguages = {
     'en-US': En,
-    'en-UK': En,
-    'en-CA': En,
-    'en-AU': En,
-    'zh-CN': ZhCN,
-    'zh-TW': ZhTW,
-    'fr': Fr,
-    'es': Es,
-    'de': De,
-    'ja': Ja,
-    'ar': Ar,
-    'pt': Pt,
-    'ru': Ru
+    'zh-CN': ZhCN
+  };
+
+  // Custom block translations for each language
+  const customBlockTranslations = {
+    'en-US': {
+      BKY_EVENTS_LOADED: 'when extension loaded %1',
+      BKY_EVENTS_THREAD: 'new thread %1',
+      BKY_EVENTS_REGBROADCAST: 'when %1 broadcasted %2',
+      BKY_EVENTS_BROADCAST: 'broadcast %1',
+      BKY_EVENTS_BROADCASTW: 'broadcast %1 and wait',
+      BKY_RUNTIME_START: 'start project',
+      BKY_RUNTIME_STOP: 'stop project',
+      BKY_RUNTIME_RUNNING: 'project running?',
+      BKY_RUNTIME_ONSTART: 'when project started %1 %2',
+      BKY_RUNTIME_ONSTOP: 'when project stopped %1 %2',
+      BKY_RUNTIME_BEFORETICK: 'before project tick %1 %2',
+      BKY_RUNTIME_AFTERTICK: 'after project tick %1 %2',
+      BKY_RUNTIME_TURBOGET: 'turbo mode enabled?',
+      BKY_RUNTIME_TURBOSET: 'set turbo mode to %1',
+      BKY_RUNTIME_FRAMEGET: 'frame rate',
+      BKY_RUNTIME_FRAMESET: 'set frame rate to %1',
+      BKY_RUNTIME_TIMER: 'project timer',
+      BKY_RUNTIME_BROADCAST: 'broadcast project %1',
+      BKY_CONTROL_IF: 'if %1 then %2 %3',
+      BKY_CONTROL_ELSEIF: 'else if',
+      BKY_CONTROL_ELSE: 'else',
+      BKY_CONTROL_WAIT: 'wait %1 seconds',
+      BKY_CONTROL_WAITFRAME: 'wait until next frame',
+      BKY_CONTROL_WAITUNTIL: 'wait until %1',
+      BKY_CONTROL_WHILE: 'while %1 do %2 %3',
+      BKY_CONTROL_REPEAT: 'repeat %1 times %2 %3',
+      BKY_CONTROL_RETURN: 'return %1',
+      BKY_CONTROL_INLINE: 'inline %1 %2',
+      BKY_ADVANCED_RANDOM: 'random number from %1 to %2',
+      BKY_ADVANCED_POWER: '%1 to the power of %2',
+      BKY_ADVANCED_LENGTH: 'length of %1',
+      BKY_ADVANCED_CONCAT: 'join %1 and %2',
+      BKY_ADVANCED_ARRAYLENGTH: 'length of %1',
+      BKY_ADVANCED_ARRAYPUSH: 'add %1 to %2',
+      BKY_ADVANCED_DATETIME: 'current date and time',
+      BKY_ADVANCED_YEAR: 'year of %1',
+      BKY_GENERIC_RETURN: 'return %1'
+    },
+    'zh-CN': {
+      BKY_EVENTS_LOADED: '当扩展加载 %1',
+      BKY_EVENTS_THREAD: '新线程 %1',
+      BKY_EVENTS_REGBROADCAST: '当 %1 广播 %2',
+      BKY_EVENTS_BROADCAST: '广播 %1',
+      BKY_EVENTS_BROADCASTW: '广播 %1 并等待',
+      BKY_RUNTIME_START: '启动项目',
+      BKY_RUNTIME_STOP: '停止项目',
+      BKY_RUNTIME_RUNNING: '项目运行中？',
+      BKY_RUNTIME_ONSTART: '当项目启动时 %1 %2',
+      BKY_RUNTIME_ONSTOP: '当项目停止时 %1 %2',
+      BKY_RUNTIME_BEFORETICK: '在项目刻之前 %1 %2',
+      BKY_RUNTIME_AFTERTICK: '在项目刻之后 %1 %2',
+      BKY_RUNTIME_TURBOGET: '加速模式已启用？',
+      BKY_RUNTIME_TURBOSET: '将加速模式设置为 %1',
+      BKY_RUNTIME_FRAMEGET: '帧率',
+      BKY_RUNTIME_FRAMESET: '将帧率设置为 %1',
+      BKY_RUNTIME_TIMER: '项目计时器',
+      BKY_RUNTIME_BROADCAST: '广播项目 %1',
+      BKY_CONTROL_IF: '如果 %1 那么 %2 %3',
+      BKY_CONTROL_ELSEIF: '否则如果',
+      BKY_CONTROL_ELSE: '否则',
+      BKY_CONTROL_WAIT: '等待 %1 秒',
+      BKY_CONTROL_WAITFRAME: '等待直到下一帧',
+      BKY_CONTROL_WAITUNTIL: '等待直到 %1',
+      BKY_CONTROL_WHILE: '当 %1 时重复执行 %2 %3',
+      BKY_CONTROL_REPEAT: '重复 %1 次 %2 %3',
+      BKY_CONTROL_RETURN: '返回 %1',
+      BKY_CONTROL_INLINE: '内联 %1 %2',
+      BKY_ADVANCED_RANDOM: '随机数从 %1 到 %2',
+      BKY_ADVANCED_POWER: '%1 的 %2 次方',
+      BKY_ADVANCED_LENGTH: '%1 的长度',
+      BKY_ADVANCED_CONCAT: '连接 %1 和 %2',
+      BKY_ADVANCED_ARRAYLENGTH: '%1 的长度',
+      BKY_ADVANCED_ARRAYPUSH: '将 %1 添加到 %2',
+      BKY_ADVANCED_DATETIME: '当前日期和时间',
+      BKY_ADVANCED_YEAR: '%1 的年份',
+      BKY_GENERIC_RETURN: '返回 %1'
+    }
   };
 
   let currentBlocklyLocale = {
     rtl: false,
     msg: {
-      ...ZhCN,
-      // Add custom block translations
-      BKY_EVENTS_LOADED: '当扩展加载 %1 %2',
-      BKY_EVENTS_THREAD: '新线程 %1 %2',
-      BKY_EVENTS_REGBROADCAST: '当 %1 广播 %2 %3',
-      BKY_EVENTS_BROADCAST: '广播 %1',
-      BKY_EVENTS_BROADCASTW: '广播 %1 并等待'
+      ...En,
+      ...customBlockTranslations['en-US']
     },
   };
 
@@ -131,10 +190,27 @@
   Patches.Blockly.Renderer(Blockly);
   Patches.Blockly.DuplicateDrag(Blockly);
   
+  // Import and register blocks immediately in browser environment
   import registerBlocks from "../resources/blocks"
   import registerButtons from "../resources/buttons"
-  registerBlocks()
-
+  
+  // Register blocks and set default messages BEFORE any component mounts
+  if (browser) {
+    // CRITICAL: Set default messages BEFORE importing/registering blocks
+    // Blocks use %{BKY_XXX} translation keys that must be in Blockly.Msg during registration
+    Object.assign(Blockly.Msg, En);
+    Object.assign(Blockly.Msg, customBlockTranslations['en-US']);
+    
+    console.log('[DEBUG] Before registerBlocks - BKY_EVENTS_LOADED:', Blockly.Msg.BKY_EVENTS_LOADED);
+    console.log('[DEBUG] Before registerBlocks - BKY_EVENTS_THREAD:', Blockly.Msg.BKY_EVENTS_THREAD);
+    
+    // Register all blocks now (translations are already in Blockly.Msg)
+    registerBlocks();
+    
+    console.log('[DEBUG] After registerBlocks - events_loaded block exists:', !!Blockly.Blocks['events_loaded']);
+    console.log('[DEBUG] After registerBlocks - events_thread block exists:', !!Blockly.Blocks['events_thread']);
+  }
+  
   /** @type {import('blockly').Workspace} */
   let activeTab = 0;
   let workspace;
@@ -456,10 +532,24 @@
 
   function updateBlocklyLanguage(langCode) {
     const lang = blocklyLanguages[langCode] || En;
+    const customTranslations = customBlockTranslations[langCode] || customBlockTranslations['en-US'];
+    
+    // Clear existing custom translations to avoid conflicts
+    Object.keys(customBlockTranslations['en-US']).forEach(key => {
+      delete Blockly.Msg[key];
+    });
+    Object.keys(customBlockTranslations['zh-CN']).forEach(key => {
+      delete Blockly.Msg[key];
+    });
+    
+    // Update Blockly's message dictionary
+    Object.assign(Blockly.Msg, lang);
+    Object.assign(Blockly.Msg, customTranslations);
+    
     currentBlocklyLocale = {
       rtl: langCode === 'ar', // Arabic is right-to-left
       msg: {
-        ...lang
+        ...Blockly.Msg
       },
     };
   }
@@ -472,16 +562,23 @@
     window.variables = {};
     window.blocks = {};
 
-    // Initialize language
+    // Initialize language on client-side
     initLanguage();
     availableLanguages = getAvailableLanguages();
-    updateBlocklyLanguage(getLanguage());
+    
+    // Set up Blockly messages for user's preferred language
+    const userLang = getLanguage();
+    const langPack = blocklyLanguages[userLang] || En;
+    const customTranslations = customBlockTranslations[userLang] || customBlockTranslations['en-US'];
+    
+    Object.assign(Blockly.Msg, langPack);
+    Object.assign(Blockly.Msg, customTranslations);
+    
+    // Blocks already registered at module level, no need to register again
 
     // Add language change listener
     const unsubscribe = addLanguageChangeListener((newLang) => {
-      // Update currentLanguage to trigger re-render
       currentLanguage = newLang;
-      // Also update Blockly language
       updateBlocklyLanguage(newLang);
     });
 

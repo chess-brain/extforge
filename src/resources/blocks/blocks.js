@@ -1,12 +1,20 @@
 import javascriptGenerator from '../javascriptGenerator';
-import { registerBlock, registerMutator } from '../register';
+import { registerBlock } from '../register';
 import Blockly from 'blockly/core';
-import util from '../util';
 
-const categoryPrefix = 'blocks_';
-const categoryColor = '#b6f';
+const categoryPrefix = '';
+const categoryColor = '#5C81A6';
+
+// Ensure translations exist before registering blocks
+function ensureTranslationsExist() {
+    if (!Blockly.Msg.BKY_GENERIC_RETURN) {
+        console.warn('[WARN] BKY_GENERIC_RETURN not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_GENERIC_RETURN = 'return %1';
+    }
+}
 
 function register() {
+    ensureTranslationsExist();
     registerBlock(`${categoryPrefix}define`, {
         message0: '%1',
         args0: [
@@ -278,7 +286,7 @@ function register() {
 
 
     registerBlock(`${categoryPrefix}return`, {
-        message0: 'return %1',
+        message0: '%{BKY_GENERIC_RETURN}',
         args0: [
             {
                 "type": "field_input",

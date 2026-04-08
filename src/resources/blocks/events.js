@@ -5,13 +5,38 @@ import Blockly from 'blockly/core';
 const categoryPrefix = 'events_';
 const categoryColor = '#fc6';
 
+// Ensure translations exist before registering blocks
+function ensureTranslationsExist() {
+    if (!Blockly.Msg.BKY_EVENTS_LOADED) {
+        console.warn('[WARN] BKY_EVENTS_LOADED not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_EVENTS_LOADED = 'when extension loaded %1';
+    }
+    if (!Blockly.Msg.BKY_EVENTS_THREAD) {
+        console.warn('[WARN] BKY_EVENTS_THREAD not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_EVENTS_THREAD = 'new thread %1';
+    }
+    if (!Blockly.Msg.BKY_EVENTS_REGBROADCAST) {
+        console.warn('[WARN] BKY_EVENTS_REGBROADCAST not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_EVENTS_REGBROADCAST = 'when %1 broadcasted %2';
+    }
+    if (!Blockly.Msg.BKY_EVENTS_BROADCAST) {
+        console.warn('[WARN] BKY_EVENTS_BROADCAST not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_EVENTS_BROADCAST = 'broadcast %1';
+    }
+    if (!Blockly.Msg.BKY_EVENTS_BROADCASTW) {
+        console.warn('[WARN] BKY_EVENTS_BROADCASTW not found in Blockly.Msg, using fallback');
+        Blockly.Msg.BKY_EVENTS_BROADCASTW = 'broadcast %1 and wait';
+    }
+}
+
 function register() {
+    ensureTranslationsExist();
+    
+    console.log('[DEBUG] Registering events_loaded, Blockly.Msg.BKY_EVENTS_LOADED =', Blockly.Msg.BKY_EVENTS_LOADED);
+    
     registerBlock(`${categoryPrefix}loaded`, {
-        message0: 'when extension loaded %1 %2',
+        message0: '%{BKY_EVENTS_LOADED}',
         args0: [
-            {
-                "type": "input_dummy"
-            },
             {
                 "type": "input_statement",
                 "name": "BLOCKS"
@@ -25,12 +50,10 @@ function register() {
         return `${code}\n`;
     })
 
+    console.log('[DEBUG] Registering events_thread, Blockly.Msg.BKY_EVENTS_THREAD =', Blockly.Msg.BKY_EVENTS_THREAD);
     registerBlock(`${categoryPrefix}thread`, {
-        message0: 'new thread %1 %2',
+        message0: '%{BKY_EVENTS_THREAD}',
         args0: [
-            {
-                "type": "input_dummy"
-            },
             {
                 "type": "input_statement",
                 "name": "BLOCKS"
@@ -48,7 +71,7 @@ function register() {
 
     //broadcasts
     registerBlock(`${categoryPrefix}regbroadcast`, {
-        message0: 'when %1 broadcasted %2 %3',
+        message0: '%{BKY_EVENTS_REGBROADCAST}',
         args0: [
             {
                 "type": "field_input",
@@ -56,9 +79,6 @@ function register() {
                 "text": "broadcast1",
                 "acceptsBlocks": true,
                 "check": "String"
-            },
-            {
-                "type": "input_dummy"
             },
             {
                 "type": "input_statement",
@@ -76,7 +96,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}broadcast`, {
-        message0: 'broadcast %1',
+        message0: '%{BKY_EVENTS_BROADCAST}',
         args0: [
             {
                 "type": "field_input",
@@ -97,7 +117,7 @@ function register() {
     })
 
     registerBlock(`${categoryPrefix}broadcastw`, {
-        message0: 'broadcast %1 and wait',
+        message0: '%{BKY_EVENTS_BROADCASTW}',
         args0: [
             {
                 "type": "field_input",

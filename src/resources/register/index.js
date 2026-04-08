@@ -8,6 +8,11 @@ import convertArgToBlock from '../argBlocks'
 export function registerBlock(blockName, jsonData, compileFunction) {
     jsonData.type = blockName
 
+    // Unregister existing block if it exists (for HMR support)
+    if (Blockly.Blocks[blockName]) {
+        delete Blockly.Blocks[blockName];
+    }
+
     const blockObject = {
         init: function () {
             this.jsonInit(jsonData);

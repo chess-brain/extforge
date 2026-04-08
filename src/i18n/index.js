@@ -1,35 +1,13 @@
 // 语言管理文件
 import enUS from './en-US.js';
-import enUK from './en-UK.js';
-import enCA from './en-CA.js';
-import enAU from './en-AU.js';
 import zhCN from './zh-CN.js';
-import zhTW from './zh-TW.js';
-import fr from './fr.js';
-import es from './es.js';
-import de from './de.js';
-import ja from './ja.js';
-import ar from './ar.js';
-import pt from './pt.js';
-import ru from './ru.js';
 
 const languages = {
   'en-US': enUS,
-  'en-UK': enUK,
-  'en-CA': enCA,
-  'en-AU': enAU,
-  'zh-CN': zhCN,
-  'zh-TW': zhTW,
-  'fr': fr,
-  'es': es,
-  'de': de,
-  'ja': ja,
-  'ar': ar,
-  'pt': pt,
-  'ru': ru
+  'zh-CN': zhCN
 };
 
-let currentLanguage = 'zh-CN';
+let currentLanguage = 'en-US';
 let listeners = [];
 
 // 添加语言变化监听器
@@ -98,9 +76,9 @@ export function initLanguage() {
     currentLanguage = savedLang;
     notifyLanguageChange();
   } else {
-    // Default to Chinese if no language is saved
-    currentLanguage = 'zh-CN';
-    localStorage.setItem('extforge_language', 'zh-CN');
+    // Default to English if no language is saved
+    currentLanguage = 'en-US';
+    localStorage.setItem('extforge_language', 'en-US');
     notifyLanguageChange();
   }
 }
