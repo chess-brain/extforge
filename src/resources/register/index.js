@@ -8,6 +8,14 @@ import convertArgToBlock from '../argBlocks'
 export function registerBlock(blockName, jsonData, compileFunction) {
     jsonData.type = blockName
 
+    // Debug: Check translation key before registration
+    if (blockName === 'events_loaded') {
+        console.log('[REGISTER BLOCK] Before jsonInit for events_loaded:');
+        console.log('  jsonData.message0:', jsonData.message0);
+        console.log('  Blockly.Msg.BKY_EVENTS_LOADED:', Blockly.Msg.BKY_EVENTS_LOADED);
+        console.log('  Blockly object identity:', Object.keys(Blockly).slice(0, 5));
+    }
+
     // Unregister existing block if it exists (for HMR support)
     if (Blockly.Blocks[blockName]) {
         delete Blockly.Blocks[blockName];

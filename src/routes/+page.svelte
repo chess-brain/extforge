@@ -2,6 +2,10 @@
   import { browser } from '$app/environment';
   import Blockly from "blockly/core";
 
+  // Import official Blockly language packs
+  import EnOfficial from "blockly/msg/en";
+  import ZhHansOfficial from "blockly/msg/zh-hans";
+  
   import En from "blockly/msg/en";
   import ZhCN from "blockly/msg/zh-hans";
   import "blockly/blocks";
@@ -196,19 +200,22 @@
   
   // Register blocks and set default messages BEFORE any component mounts
   if (browser) {
+    console.log('[PAGE] Blockly.Msg identity before merge:', Blockly.Msg);
+    console.log('[PAGE] Before merging translations, BKY_EVENTS_LOADED =', Blockly.Msg.BKY_EVENTS_LOADED);
+    
     // CRITICAL: Set default messages BEFORE importing/registering blocks
     // Blocks use %{BKY_XXX} translation keys that must be in Blockly.Msg during registration
     Object.assign(Blockly.Msg, En);
     Object.assign(Blockly.Msg, customBlockTranslations['en-US']);
     
-    console.log('[DEBUG] Before registerBlocks - BKY_EVENTS_LOADED:', Blockly.Msg.BKY_EVENTS_LOADED);
-    console.log('[DEBUG] Before registerBlocks - BKY_EVENTS_THREAD:', Blockly.Msg.BKY_EVENTS_THREAD);
+    console.log('[PAGE] Blockly.Msg identity after merge:', Blockly.Msg);
+    console.log('[PAGE] After merging translations, BKY_EVENTS_LOADED =', Blockly.Msg.BKY_EVENTS_LOADED);
+    console.log('[PAGE] Calling registerBlocks()');
     
     // Register all blocks now (translations are already in Blockly.Msg)
     registerBlocks();
     
-    console.log('[DEBUG] After registerBlocks - events_loaded block exists:', !!Blockly.Blocks['events_loaded']);
-    console.log('[DEBUG] After registerBlocks - events_thread block exists:', !!Blockly.Blocks['events_thread']);
+    console.log('[PAGE] After registerBlocks(), BKY_EVENTS_LOADED =', Blockly.Msg.BKY_EVENTS_LOADED);
   }
   
   /** @type {import('blockly').Workspace} */
@@ -542,8 +549,17 @@
       delete Blockly.Msg[key];
     });
     
-    // Update Blockly's message dictionary
-    Object.assign(Blockly.Msg, lang);
+    // CRITICAL: Load official Blockly language pack FIRST
+    // This ensures all built-in blocks have their tooltips and messages
+    if (langCode === 'zh-CN') {
+      Object.assign(Blockly.Msg, ZhHansOfficial);
+      console.log('[PAGE] Official Blockly zh-Hans language pack loaded');
+    } else {
+      Object.assign(Blockly.Msg, EnOfficial);
+      console.log('[PAGE] Official Blockly en language pack loaded');
+    }
+    
+    // Then merge custom translations
     Object.assign(Blockly.Msg, customTranslations);
     
     currentBlocklyLocale = {
@@ -571,6 +587,14 @@
     const langPack = blocklyLanguages[userLang] || En;
     const customTranslations = customBlockTranslations[userLang] || customBlockTranslations['en-US'];
     
+    // CRITICAL: Load official Blockly language pack FIRST
+    if (userLang === 'zh-CN') {
+      Object.assign(Blockly.Msg, ZhHansOfficial);
+    } else {
+      Object.assign(Blockly.Msg, EnOfficial);
+    }
+    
+    // Then merge custom translations
     Object.assign(Blockly.Msg, langPack);
     Object.assign(Blockly.Msg, customTranslations);
     

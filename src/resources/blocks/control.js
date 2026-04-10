@@ -1,37 +1,11 @@
 import javascriptGenerator from '../javascriptGenerator';
 import { registerBlock, registerMutator } from '../register';
 import Blockly from 'blockly/core';
-import util from '../util';
 
 const categoryPrefix = 'control_';
-const categoryColor = '#fb6';
-
-// Ensure translations exist before registering blocks
-function ensureTranslationsExist() {
-    const translations = {
-        BKY_CONTROL_IF: 'if %1 then %2 %3',
-        BKY_CONTROL_ELSEIF: 'else if',
-        BKY_CONTROL_ELSE: 'else',
-        BKY_CONTROL_THEN: 'then',
-        BKY_CONTROL_WAIT: 'wait %1 seconds',
-        BKY_CONTROL_WAITFRAME: 'wait until next frame',
-        BKY_CONTROL_WAITUNTIL: 'wait until %1',
-        BKY_CONTROL_WHILE: 'while %1 do %2 %3',
-        BKY_CONTROL_REPEAT: 'repeat %1 times %2 %3',
-        BKY_CONTROL_RETURN: 'return %1',
-        BKY_CONTROL_INLINE: 'inline %1 %2'
-    };
-    
-    Object.entries(translations).forEach(([key, value]) => {
-        if (!Blockly.Msg[key]) {
-            console.warn(`[WARN] ${key} not found in Blockly.Msg, using fallback`);
-            Blockly.Msg[key] = value;
-        }
-    });
-}
+const categoryColor = '#FFAB19';
 
 function register() {
-    ensureTranslationsExist();
     registerBlock(`${categoryPrefix}if`, {
         message0: '%{BKY_CONTROL_IF}',
         args0: [
@@ -126,8 +100,7 @@ function register() {
         inputsInline: true,
         colour: categoryColor
     }, (block) => {
-        const v = "temp_"+util.randomHex(24)
-        const code = `await new Promise(${v} => { requestAnimationFrame(() => { ${v}() }) })`;
+        const code = `await new Promise(resolve => { requestAnimationFrame(() => { resolve() }) })`;
         return `${code}\n`;
     })
     registerBlock(`${categoryPrefix}waitU`, {
@@ -144,10 +117,8 @@ function register() {
         inputsInline: true,
         colour: categoryColor
     }, (block) => {
-        const BOOL = javascriptGenerator.valueToCode(block, 'BOOL');
-        const v1 = "temp_"+util.randomHex(24)
-        const v2 = "temp_"+util.randomHex(24)
-        const code = `await new Promise(${v1} => {let ${v2} = () => false ? ${v1}() : requestAnimationFrame(${v2}); ${v2}()})`;
+        const BOOL = javascriptGenerator.valueToCode(block, 'BOOL') || 'false';
+        const code = `await new Promise(resolve => { const check = () => { if (${BOOL}) { resolve(); } else { requestAnimationFrame(check); } }; check(); })`;
         return `${code}\n`;
     })
 
@@ -201,10 +172,10 @@ function register() {
         inputsInline: true,
         colour: categoryColor
     }, (block) => {
-        const AMT = javascriptGenerator.valueToCode(block, 'AMT');
+        const AMT = javascriptGenerator.valueToCode(block, 'AMT') || '0';
         const BLOCKS = javascriptGenerator.statementToCode(block, 'BLOCKS');
-        const varName = "temp_"+util.randomHex(24)
-        const code = `for (var ${varName} = 0; ${varName} < ${AMT}; ${varName}++) { ${BLOCKS} };`
+        const varName = javascriptGenerator.nameDB_.getDistinctName('i', Blockly.Names.NameType.VARIABLE);
+        const code = `for (var ${varName} = 0; ${varName} < ${AMT}; ${varName}++) { ${BLOCKS} }`;
         return `${code}\n`;
     })
 
@@ -395,14 +366,14 @@ function register() {
             for (let i = 1; i <= this.elseifCount_; i++) {
                 this.appendValueInput(`BOOL${i}`)
                     .setCheck('Boolean')
-                    .appendField(Blockly.Msg['BKY_CONTROL_ELSEIF'] || 'else if')
+                    .appendField("else if")
                 this.appendDummyInput(`DUMMY${i}`)
-                    .appendField(Blockly.Msg['BKY_CONTROL_THEN'] || 'then')
+                    .appendField("then")
                 this.appendStatementInput(`BLOCKS${i}`)
             }
             if (this.elseCount_) {
                 this.appendDummyInput('DUMMYELSE')
-                    .appendField(Blockly.Msg['BKY_CONTROL_ELSE'] || 'else')
+                    .appendField("else")
                 this.appendStatementInput('ELSE')
             }
         },

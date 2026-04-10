@@ -5,7 +5,7 @@
 
 <script>
     import { createEventDispatcher } from "svelte";
-    import Blockly from "blockly/core.js";
+    import Blockly from "blockly/core";
     import registerDynamicCategories from "../../resources/categories";
     import iconBlocks from "$lib/images/blockicon/blocks.svg";
     import iconBrowser from "$lib/images/blockicon/browser.svg";

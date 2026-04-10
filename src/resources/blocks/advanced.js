@@ -5,29 +5,7 @@ import Blockly from 'blockly/core';
 const categoryPrefix = 'advanced_';
 const categoryColor = '#5C81A6';
 
-// Ensure translations exist before registering blocks
-function ensureTranslationsExist() {
-    const translations = {
-        BKY_ADVANCED_RANDOM: 'random number from %1 to %2',
-        BKY_ADVANCED_POWER: '%1 to the power of %2',
-        BKY_ADVANCED_LENGTH: 'length of %1',
-        BKY_ADVANCED_CONCAT: 'join %1 and %2',
-        BKY_ADVANCED_ARRAYLENGTH: 'length of %1',
-        BKY_ADVANCED_ARRAYPUSH: 'add %1 to %2',
-        BKY_ADVANCED_DATETIME: 'current date and time',
-        BKY_ADVANCED_YEAR: 'year of %1'
-    };
-    
-    Object.entries(translations).forEach(([key, value]) => {
-        if (!Blockly.Msg[key]) {
-            console.warn(`[WARN] ${key} not found in Blockly.Msg, using fallback`);
-            Blockly.Msg[key] = value;
-        }
-    });
-}
-
 function register() {
-    ensureTranslationsExist();
     registerBlock(`${categoryPrefix}math_random`, {
         message0: '%{BKY_ADVANCED_RANDOM}',
         args0: [

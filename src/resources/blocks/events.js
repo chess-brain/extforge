@@ -1,39 +1,10 @@
 import javascriptGenerator from '../javascriptGenerator';
 import { registerBlock } from '../register';
-import Blockly from 'blockly/core';
 
 const categoryPrefix = 'events_';
 const categoryColor = '#fc6';
 
-// Ensure translations exist before registering blocks
-function ensureTranslationsExist() {
-    if (!Blockly.Msg.BKY_EVENTS_LOADED) {
-        console.warn('[WARN] BKY_EVENTS_LOADED not found in Blockly.Msg, using fallback');
-        Blockly.Msg.BKY_EVENTS_LOADED = 'when extension loaded %1';
-    }
-    if (!Blockly.Msg.BKY_EVENTS_THREAD) {
-        console.warn('[WARN] BKY_EVENTS_THREAD not found in Blockly.Msg, using fallback');
-        Blockly.Msg.BKY_EVENTS_THREAD = 'new thread %1';
-    }
-    if (!Blockly.Msg.BKY_EVENTS_REGBROADCAST) {
-        console.warn('[WARN] BKY_EVENTS_REGBROADCAST not found in Blockly.Msg, using fallback');
-        Blockly.Msg.BKY_EVENTS_REGBROADCAST = 'when %1 broadcasted %2';
-    }
-    if (!Blockly.Msg.BKY_EVENTS_BROADCAST) {
-        console.warn('[WARN] BKY_EVENTS_BROADCAST not found in Blockly.Msg, using fallback');
-        Blockly.Msg.BKY_EVENTS_BROADCAST = 'broadcast %1';
-    }
-    if (!Blockly.Msg.BKY_EVENTS_BROADCASTW) {
-        console.warn('[WARN] BKY_EVENTS_BROADCASTW not found in Blockly.Msg, using fallback');
-        Blockly.Msg.BKY_EVENTS_BROADCASTW = 'broadcast %1 and wait';
-    }
-}
-
 function register() {
-    ensureTranslationsExist();
-    
-    console.log('[DEBUG] Registering events_loaded, Blockly.Msg.BKY_EVENTS_LOADED =', Blockly.Msg.BKY_EVENTS_LOADED);
-    
     registerBlock(`${categoryPrefix}loaded`, {
         message0: '%{BKY_EVENTS_LOADED}',
         args0: [
@@ -50,7 +21,6 @@ function register() {
         return `${code}\n`;
     })
 
-    console.log('[DEBUG] Registering events_thread, Blockly.Msg.BKY_EVENTS_THREAD =', Blockly.Msg.BKY_EVENTS_THREAD);
     registerBlock(`${categoryPrefix}thread`, {
         message0: '%{BKY_EVENTS_THREAD}',
         args0: [
