@@ -228,6 +228,9 @@
   }
   let availableLanguages = [];
   let showLanguageMenu = false;
+  /** @type {HTMLDivElement | undefined} */
+  let languageMenuContainer;
+  let languageMenuStyle = "";
   let compiler = new Compiler();
   let code = '';
   let blockSearchQuery = "";
@@ -545,8 +548,26 @@
     updateGeneratedCode();
   }
 
-  function toggleLanguageMenu() {
+  function updateLanguageMenuPosition() {
+    if (!languageMenuContainer) return;
+    const rect = languageMenuContainer.getBoundingClientRect();
+    languageMenuStyle = `top:${rect.bottom + 8}px;right:${window.innerWidth - rect.right}px;`;
+  }
+
+  async function toggleLanguageMenu() {
     showLanguageMenu = !showLanguageMenu;
+    if (showLanguageMenu) {
+      await tick();
+      updateLanguageMenuPosition();
+    }
+  }
+
+  /** @param {MouseEvent} event */
+  function handleLanguageMenuClickOutside(event) {
+    if (!showLanguageMenu || !languageMenuContainer) return;
+    if (!languageMenuContainer.contains(/** @type {Node} */ (event.target))) {
+      showLanguageMenu = false;
+    }
   }
 
   function changeLanguage(langCode) {
@@ -659,8 +680,11 @@
       localStorage.setItem('localConfig', JSON.stringify(localConfig))
     })
 
+    document.addEventListener('click', handleLanguageMenuClickOutside);
+
     // Clean up listener on unmount
     return () => {
+      document.removeEventListener('click', handleLanguageMenuClickOutside);
       unsubscribe();
     };
   });
@@ -691,12 +715,12 @@
   <NavigationButton icon={NavIconExperiments} on:click={() => openModal("experiments") }>
     {t('nav.experiments')}
   </NavigationButton>
-  <div class="language-menu-container">
+  <div class="language-menu-container" bind:this={languageMenuContainer}>
     <NavigationButton icon={NavIconLang} on:click={toggleLanguageMenu}>
       {t('nav.language')}
     </NavigationButton>
     {#if showLanguageMenu}
-      <div class="language-menu">
+      <div class="language-menu" style={languageMenuStyle}>
         {#each availableLanguages as lang}
           <button
             type="button"
@@ -1338,10 +1362,7 @@
   }
 
   .language-menu {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 8px;
+    position: fixed;
     font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: clamp(0.8125rem, 1.65vw, 0.9375rem);
     font-weight: 500;
