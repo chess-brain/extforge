@@ -2,13 +2,19 @@
     import { createEventDispatcher } from "svelte";
     import plusIcon from "$lib/images/nav/plus.svg";
     import * as i18n from "../../i18n";
+    import { locale } from "../../i18n";
 
     const dispatch = createEventDispatcher();
+
+    function t(key) {
+        $locale;
+        return i18n.t(key);
+    }
 </script>
 
 <button
     type="button"
-    aria-label={i18n.t('blocksUi.createBlockAria')}
+    aria-label={t('blocksUi.createBlockAria')}
     on:click={() => dispatch('click')}
 >
     <img src={plusIcon} alt="" />

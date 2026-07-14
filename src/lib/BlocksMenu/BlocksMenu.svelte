@@ -3,6 +3,7 @@
     import CreateButton from "./CreateButton.svelte";
     import Blockly from "blockly/core";
     import * as i18n from "../../i18n";
+    import { locale } from "../../i18n";
     import {
         ensureCustomDefineBlocks,
         refreshBlocksToolbox,
@@ -10,6 +11,7 @@
     
     // 使用函数包装t，确保每次都获取最新的语言
     function t(key) {
+        $locale;
         return i18n.t(key);
     }
 
